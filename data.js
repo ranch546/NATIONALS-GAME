@@ -310,6 +310,7 @@ AN.loadSave = () => {
 
 AN.persist = (save) => {
     if (AN.Profiles?.persist) AN.Profiles.persist(save);
+    AN.GlobalLB?.syncFromActive?.(save);
 };
 
 AN.yearForStop = (stopIndex) => AN.YEAR_LIST[stopIndex % AN.YEAR_LIST.length];

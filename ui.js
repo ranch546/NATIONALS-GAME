@@ -700,12 +700,17 @@ AN.UI.renderUpgrades = () => {
     });
 };
 
-AN.UI.renderLeaderboard = () => {
+AN.UI.renderLeaderboard = async () => {
     const list = AN.UI.$('leaderboardList');
+    const sub = document.querySelector('#leaderboardScreen .modal-sub');
     if (!list) return;
-    const rows = AN.Profiles.leaderboard();
+    if (sub) sub.textContent = AN.GlobalLB?.statusText?.() || 'Ranked by best quiz score';
+    list.innerHTML = '<p class="leaderboard-empty">Loading scores…</p>';
+    const rows = AN.GlobalLB?.getLeaderboard
+        ? await AN.GlobalLB.getLeaderboard()
+        : AN.Profiles.leaderboard();
     if (!rows.length) {
-        list.innerHTML = '<p class="leaderboard-empty">No players yet — create an account to appear here!</p>';
+        list.innerHTML = '<p class="leaderboard-empty">No scores yet — finish a quiz run to appear here!</p>';
         return;
     }
     list.innerHTML = '';

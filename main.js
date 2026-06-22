@@ -77,7 +77,10 @@ AN.Main = {
             AN.UI.hide('upgradeScreen');
             AN.UI.syncCoinsDisplay();
         });
-        AN.UI.bind('btnLeaderboard', () => { AN.UI.renderLeaderboard(); AN.UI.show('leaderboardScreen'); });
+        AN.UI.bind('btnLeaderboard', async () => {
+            await AN.UI.renderLeaderboard();
+            AN.UI.show('leaderboardScreen');
+        });
         AN.UI.bind('btnCloseLeaderboard', () => AN.UI.hide('leaderboardScreen'));
         AN.UI.bind('btnAchievements', () => { AN.UI.renderAchievements(); AN.UI.show('achieveScreen'); });
         AN.UI.bind('btnCloseAchieve', () => AN.UI.hide('achieveScreen'));

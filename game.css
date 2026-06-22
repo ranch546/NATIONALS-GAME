@@ -1,5 +1,5 @@
 /*
- * build: 75 — keep in sync with index.html game.css?v=75
+ * build: 77 — keep in sync with index.html game.css?v=77
  * ═══════════════════════════════════════════════════════════════════════════
  * game.css — ALL VISUAL STYLES (Presentation / Judge Guide)
  * ═══════════════════════════════════════════════════════════════════════════
@@ -18,9 +18,9 @@
 :root {
     --app-w: 100vw;
     --app-h: 100dvh;
-    --design-w: 1280;
-    --design-h: 800;
-    --ui-scale: min(calc(var(--app-w) / var(--design-w)), calc(var(--app-h) / var(--design-h)), 1);
+    --design-w: 3840;
+    --design-h: 2160;
+    --ui-scale: max(0.36, min(calc(var(--app-w) / var(--design-w)), calc(var(--app-h) / var(--design-h))));
     --dock-h: clamp(72px, 10vh, 120px);
     --void: #05020c;
     --pink: #ff2bd6;
@@ -36,7 +36,16 @@
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
-    width: 100%; height: 100%; overflow: hidden;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+    -webkit-overflow-scrolling: auto;
     background: var(--void); color: #fff;
     font-family: var(--font-b); font-size: 20px;
 }
@@ -54,26 +63,45 @@ html, body {
     pointer-events: none; width: 100%; height: 100%;
 }
 #shakeRoot {
-    --ui-scale: min(calc(var(--app-w) / var(--design-w)), calc(var(--app-h) / var(--design-h)), 1);
     position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    z-index: 10;
+    pointer-events: none;
+}
+#uiScale {
+    --ui-scale: max(0.36, min(calc(var(--app-w) / var(--design-w)), calc(var(--app-h) / var(--design-h))));
+    position: absolute;
     top: 0; left: 0;
     width: calc(var(--app-w) / var(--ui-scale));
     height: calc(var(--app-h) / var(--ui-scale));
     transform: scale(var(--ui-scale));
     transform-origin: top left;
     overflow: hidden;
-    z-index: 10;
-    pointer-events: none;
 }
+#uiScale .view:not(.hidden),
 #shakeRoot .view:not(.hidden),
+#uiScale .world-card,
 #shakeRoot .world-card,
+#uiScale .arcade-btn,
 #shakeRoot .arcade-btn,
+#uiScale button,
 #shakeRoot button,
+#uiScale .cue-card,
 #shakeRoot .cue-card,
+#uiScale .trivia-card,
 #shakeRoot .trivia-card,
+#uiScale .redemption-ans,
 #shakeRoot .redemption-ans,
+#uiScale .journey-start,
 #shakeRoot .journey-start,
+#uiScale .timeline-card,
 #shakeRoot .timeline-card,
+#uiScale .result-actions button,
 #shakeRoot .result-actions button { pointer-events: auto; }
 body.phase-play #bootScreen { display: none !important; }
 body.phase-play #gameLayer { z-index: 0; display: none !important; }
@@ -377,7 +405,7 @@ body.phase-play #shakeRoot { z-index: 10; }
         var(--void);
 }
 .login-shell {
-    width: min(900px, 98vw); min-height: min(92vh, 900px);
+    width: min(900px, 98vw); min-height: 0; max-height: 100%;
     padding: clamp(32px, 5vh, 56px) clamp(28px, 5vw, 64px);
     display: flex; flex-direction: column; justify-content: center;
     background: linear-gradient(165deg, rgba(14,4,28,0.98), rgba(4,2,12,0.99));
@@ -393,7 +421,7 @@ body.phase-play #shakeRoot { z-index: 10; }
     text-align: center; color: var(--gold); margin-bottom: 12px;
 }
 .login-sub { text-align: center; color: #99a; font-size: clamp(1.1rem, 2.5vw, 1.45rem); margin-bottom: 32px; line-height: 1.45; }
-.player-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; max-height: 40vh; overflow-y: auto; }
+.player-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; max-height: 40vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .player-card-wrap { display: flex; align-items: stretch; gap: 8px; }
 .player-card {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -1849,8 +1877,65 @@ body.phase-play #shakeRoot { z-index: 10; }
 
 @media (max-width: 700px) {
     .trivia-cards { grid-template-columns: repeat(2, 1fr); }
-    .trivia-card { min-height: clamp(180px, 32vh, 280px); }
-    .tc-img-wrap { min-height: clamp(120px, 24vh, 200px); }
-    .tc-img { min-height: clamp(100px, 20vh, 180px); }
+    .trivia-card { min-height: clamp(140px, 22vh, 220px); }
+    .tc-img-wrap { min-height: clamp(90px, 16vh, 150px); }
+    .tc-img { min-height: clamp(70px, 14vh, 130px); }
     .year-node { flex: 0 0 72px; }
+}
+
+/* Phone — compact hub so everything fits one screen, no scroll */
+@media (max-width: 520px), (max-height: 740px) {
+    .hub-shell {
+        padding: 8px 12px 10px;
+        justify-content: flex-start;
+        gap: 2px;
+    }
+    .hub-page-label { font-size: 0.55rem; margin-bottom: 2px; letter-spacing: 0.12em; }
+    .hub-brand { font-size: 1.1rem; margin-bottom: 4px; line-height: 1.05; }
+    .hub-player-bar { margin-bottom: 2px; }
+    .hub-playing-as { font-size: 0.62rem; }
+    .hub-switch-btn { font-size: 0.58rem; padding: 5px 8px; }
+    .hub-header {
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 4px;
+        padding-bottom: 4px;
+        gap: 6px;
+    }
+    .hub-rank-label { font-size: 0.55rem; }
+    .hub-rank-value { font-size: 0.95rem; }
+    .hub-level { font-size: 0.7rem; }
+    .xp-track { height: 10px; margin: 6px 0 4px; }
+    .hub-currencies { min-width: 0; justify-content: center; }
+    .hub-coins-big { padding: 4px 10px; width: auto; border-width: 2px; border-radius: 12px; }
+    .hub-coins-icon { font-size: 1.1rem; }
+    .hub-coins-value { font-size: 1.45rem; }
+    .hub-coins-label { font-size: 0.55rem; letter-spacing: 0.15em; }
+    .hub-title { font-size: 0.85rem; margin-bottom: 2px; }
+    .hub-sub { font-size: 0.58rem; margin-bottom: 4px; line-height: 1.2; }
+    .hub-start-wrap { padding: 2px 0; gap: 4px; }
+    .hub-start-btn { font-size: 0.9rem; padding: 9px 22px; border-width: 2px; border-radius: 14px; }
+    .hub-start-hint { font-size: 0.55rem; line-height: 1.25; max-width: 92%; }
+    .hub-resume-btn { font-size: 0.85rem; padding: 8px 18px; }
+    .hub-resume-hint { font-size: 0.55rem; }
+    .hub-actions { margin-top: 4px; gap: 5px; }
+    .hub-actions .arcade-btn { font-size: 0.58rem; padding: 7px 9px; }
+    .hub-danger-zone { display: none; }
+    .status-dock { padding: 6px 8px; gap: 6px; }
+    .dock-score { font-size: 0.85rem; }
+    .mg-panel, .arcade-mg { padding: 10px 12px; }
+    .mg-title { font-size: 1rem; margin-bottom: 4px; }
+    .mg-hint { font-size: 0.7rem; margin-bottom: 6px; }
+    .mg-timer { font-size: 1.2rem; margin-bottom: 8px; }
+    .login-shell { padding: 16px 14px; }
+    .login-title { font-size: 1.4rem; }
+    .help-modal-fullscreen,
+    .modal-panel-xl {
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        border-radius: 0;
+        padding: 12px 10px !important;
+    }
+    .view-modal { padding: 0 !important; }
 }

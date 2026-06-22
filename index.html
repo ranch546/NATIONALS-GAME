@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>Journey Through the 1980s</title>
     <script>
     (function () {
@@ -24,13 +24,26 @@
         }
         syncViewport();
         window.addEventListener('resize', syncViewport);
+        window.addEventListener('orientationchange', function () {
+            setTimeout(syncViewport, 100);
+        });
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', syncViewport);
         }
+        document.addEventListener('touchmove', function (e) {
+            var el = e.target;
+            while (el && el !== document.documentElement) {
+                if (el.classList && el.classList.contains('scroll-allow')) return;
+                var oy = window.getComputedStyle(el).overflowY;
+                if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 2) return;
+                el = el.parentElement;
+            }
+            e.preventDefault();
+        }, { passive: false });
     })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="game.css?v=75">
+    <link rel="stylesheet" href="game.css?v=77">
 </head>
 <body class="phase-boot">
     <div id="gameLayer">
@@ -42,6 +55,7 @@
     <div class="vignette" aria-hidden="true"></div>
     <div id="screenFlash"></div>
     <div id="shakeRoot">
+    <div id="uiScale">
 
         <!-- [JUDGE] BOOT — First screen; js/ui.js boot() animates the loading bar -->
         <section id="bootScreen" class="view view-boot">
@@ -155,7 +169,7 @@
             <div class="modal-panel modal-panel-xl modal-panel-landscape lb-modal">
                 <div class="modal-landscape-head">
                     <h2>🏆 LEADERBOARD</h2>
-                    <p class="modal-sub">Everyone on this device — ranked by best quiz score</p>
+                    <p class="modal-sub">Worldwide scores — everyone who plays sees the same board</p>
                 </div>
                 <div class="lb-table-wrap">
                     <div class="lb-table-head" aria-hidden="true">
@@ -242,7 +256,7 @@
                             <li>Earn <strong>+15 🪙</strong> each time your profile levels up from XP</li>
                             <li>Spend coins on <strong>UPGRADES</strong> (time, coin boost, eliminator, lucky save, XP)</li>
                             <li>Check <strong>TROPHIES</strong> for 8 unlockable achievements</li>
-                            <li><strong>LEADERBOARD</strong> ranks every profile on this device</li>
+                            <li><strong>LEADERBOARD</strong> shows worldwide best scores from every player</li>
                         </ul>
                     </div>
                 </div>
@@ -428,18 +442,21 @@
             <p id="levelUpTokens" class="level-up-reward">+15 🪙 COINS</p>
         </div>
     </div>
+    </div>
 
     <!-- [JUDGE] SCRIPTS — Load order matters: data first, main.js last starts the game -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="data.js?v=67"></script>
+    <script src="data.js?v=68"></script>
     <script src="answerImageData.js?v=65"></script>
-    <script src="profiles.js?v=49"></script>
+    <script src="firebase-config.js?v=1"></script>
+    <script src="globalLeaderboard.js?v=1"></script>
+    <script src="profiles.js?v=50"></script>
     <script src="cueArt.js?v=62"></script>
     <script src="fx.js?v=32"></script>
     <script src="minigames.js?v=67"></script>
     <script src="worlds.js?v=32"></script>
     <script src="engine.js?v=45"></script>
-    <script src="ui.js?v=63"></script>
-    <script src="main.js?v=57"></script>
+    <script src="ui.js?v=64"></script>
+    <script src="main.js?v=58"></script>
 </body>
 </html>

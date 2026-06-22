@@ -60,6 +60,16 @@ AN.Profiles._migrateLegacy = () => {
 
 AN.Profiles.init = () => {
     AN.Profiles._migrateLegacy();
+    const reg = AN.Profiles._readRegistry();
+    let changed = false;
+    reg.profiles.forEach(p => {
+        if (!p.globalId) {
+            p.globalId = 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+            changed = true;
+        }
+    });
+    if (changed) AN.Profiles._writeRegistry(reg);
+    AN.GlobalLB?.syncAllLocal?.();
 };
 
 AN.Profiles.list = () => AN.Profiles._readRegistry().profiles;
@@ -101,6 +111,7 @@ AN.Profiles.create = (name, pin = '') => {
         id,
         name: trimmed,
         pin: String(pin || '').replace(/\D/g, '').slice(0, 4),
+        globalId: 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
         createdAt: Date.now(),
         lastPlayed: Date.now()
     };
