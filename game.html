@@ -3,10 +3,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Journey Through the 1980s</title>
+    <script>
+    (function () {
+        var path = location.pathname;
+        if (!path.endsWith('/')) {
+            path = /\.html?$/i.test((path.split('/').pop() || ''))
+                ? path.replace(/[^/]+$/, '')
+                : path + '/';
+        }
+        var base = document.createElement('base');
+        base.href = location.origin + path;
+        document.head.appendChild(base);
+    })();
+    (function () {
+        function syncViewport() {
+            document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px');
+            document.documentElement.style.setProperty('--app-w', window.innerWidth + 'px');
+        }
+        syncViewport();
+        window.addEventListener('resize', syncViewport);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', syncViewport);
+        }
+    })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="game.css?v=73">
+    <link rel="stylesheet" href="game.css?v=75">
 </head>
 <body class="phase-boot">
     <div id="gameLayer">

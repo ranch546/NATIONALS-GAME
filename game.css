@@ -1,4 +1,5 @@
 /*
+ * build: 75 — keep in sync with index.html game.css?v=75
  * ═══════════════════════════════════════════════════════════════════════════
  * game.css — ALL VISUAL STYLES (Presentation / Judge Guide)
  * ═══════════════════════════════════════════════════════════════════════════
@@ -15,7 +16,12 @@
  */
 /* ARCADE NATIONALS — AAA synthwave arcade UI */
 :root {
-    --dock-h: 140px;
+    --app-w: 100vw;
+    --app-h: 100dvh;
+    --design-w: 1280;
+    --design-h: 800;
+    --ui-scale: min(calc(var(--app-w) / var(--design-w)), calc(var(--app-h) / var(--design-h)), 1);
+    --dock-h: clamp(72px, 10vh, 120px);
     --void: #05020c;
     --pink: #ff2bd6;
     --cyan: #00f5ff;
@@ -48,7 +54,15 @@ html, body {
     pointer-events: none; width: 100%; height: 100%;
 }
 #shakeRoot {
-    position: fixed; inset: 0; z-index: 10;
+    --ui-scale: min(calc(var(--app-w) / var(--design-w)), calc(var(--app-h) / var(--design-h)), 1);
+    position: fixed;
+    top: 0; left: 0;
+    width: calc(var(--app-w) / var(--ui-scale));
+    height: calc(var(--app-h) / var(--ui-scale));
+    transform: scale(var(--ui-scale));
+    transform-origin: top left;
+    overflow: hidden;
+    z-index: 10;
     pointer-events: none;
 }
 #shakeRoot .view:not(.hidden),
@@ -356,7 +370,7 @@ body.phase-play #shakeRoot { z-index: 10; }
 /* PLAYER LOGIN */
 .view-login {
     justify-content: center; align-items: center;
-    padding: 20px 16px; overflow-y: auto; min-height: 100vh; box-sizing: border-box;
+    padding: 20px 16px; overflow: hidden; min-height: 0; height: 100%; box-sizing: border-box;
     background:
         radial-gradient(ellipse at 50% 20%, rgba(0,245,255,0.15), transparent 50%),
         radial-gradient(ellipse at 80% 80%, rgba(255,43,214,0.12), transparent 45%),
@@ -465,18 +479,19 @@ body.phase-play #shakeRoot { z-index: 10; }
 /* HOME PAGE / HUB — FULL SCREEN */
 .view-hub {
     justify-content: stretch; align-items: stretch;
-    padding: 0; overflow-y: auto;
-    min-height: 100vh; height: 100vh; box-sizing: border-box;
+    padding: 0; overflow: hidden;
+    min-height: 0; height: 100%; box-sizing: border-box;
     background:
         radial-gradient(ellipse at 50% 20%, rgba(255,43,214,0.22), transparent 55%),
         radial-gradient(ellipse at 50% 100%, rgba(0,245,255,0.12), transparent 50%),
         var(--void);
 }
 .hub-shell {
-    width: 100%; min-height: 100vh; max-width: none;
-    padding: clamp(28px, 4vh, 48px) clamp(24px, 4vw, 64px) clamp(32px, 5vh, 56px);
+    width: 100%; min-height: 0; height: 100%; max-width: none;
+    padding: clamp(16px, 2.5vh, 48px) clamp(20px, 3vw, 64px) clamp(18px, 3vh, 56px);
     margin: 0;
-    display: flex; flex-direction: column; justify-content: center;
+    display: flex; flex-direction: column; justify-content: space-evenly;
+    overflow: hidden;
     background: linear-gradient(165deg, rgba(16,6,32,0.97), rgba(6,2,14,0.99));
     border: none; border-top: 4px solid rgba(0,245,255,0.4);
     border-radius: 0;
@@ -496,8 +511,9 @@ body.phase-play #shakeRoot { z-index: 10; }
 }
 .hub-header {
     width: 100%; display: flex; flex-wrap: wrap; justify-content: space-between;
-    gap: 24px; align-items: flex-end; margin-bottom: clamp(24px, 4vh, 40px);
-    padding-bottom: clamp(16px, 3vh, 28px); border-bottom: 2px solid rgba(255,255,255,0.1);
+    gap: 16px; align-items: flex-end; margin-bottom: clamp(12px, 2vh, 28px);
+    padding-bottom: clamp(10px, 2vh, 20px); border-bottom: 2px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
 }
 .hub-rank-label { font-family: var(--font-h); font-size: clamp(1rem, 2vw, 1.35rem); letter-spacing: 0.2em; color: var(--cyan); }
 .hub-rank-value { font-family: var(--font-h); font-size: clamp(2.2rem, 5vw, 3.5rem); display: block; color: var(--gold); }
@@ -1092,7 +1108,7 @@ body.phase-play #shakeRoot { z-index: 10; }
 
 /* VICTORY / DEFEAT — FULL SCREEN */
 .view-victory, .view-defeat {
-    position: fixed; inset: 0; width: 100vw; height: 100vh;
+    position: fixed; inset: 0; width: 100%; height: 100%;
     z-index: 30; text-align: center; padding: 0; margin: 0;
     justify-content: stretch; align-items: stretch;
     background: #05020c;
@@ -1127,8 +1143,8 @@ body.phase-play #shakeRoot { z-index: 10; }
 .victory-shell {
     position: relative; z-index: 2; flex: 1;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    width: 100%; padding: clamp(80px, 12vh, 120px) clamp(20px, 4vw, 48px) clamp(32px, 5vh, 64px);
-    box-sizing: border-box;
+    width: 100%; padding: clamp(48px, 8vh, 80px) clamp(20px, 4vw, 48px) clamp(24px, 4vh, 48px);
+    box-sizing: border-box; overflow: hidden; min-height: 0;
 }
 .victory-title {
     font-family: var(--font-h);
@@ -1195,11 +1211,12 @@ body.phase-play #shakeRoot { z-index: 10; }
 /* ═══ JOURNEY THROUGH THE 1980s ═══ */
 .hub-sub {
     text-align: center; color: #ccd; font-size: clamp(1.35rem, 3vw, 1.85rem);
-    margin: 0 0 clamp(24px, 3.5vh, 40px); line-height: 1.5; font-weight: 600;
+    margin: 0 0 clamp(12px, 2vh, 28px); line-height: 1.45; font-weight: 600;
+    flex-shrink: 0;
 }
 .hub-start-wrap {
-    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: clamp(16px, 2.5vh, 24px); width: 100%; padding: clamp(20px, 4vh, 48px) 0;
+    flex: 0 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: clamp(10px, 1.8vh, 24px); width: 100%; padding: clamp(8px, 2vh, 32px) 0;
 }
 .hub-resume-btn {
     font-family: var(--font-h); font-size: clamp(1.35rem, 3.2vw, 2rem); font-weight: 900;
@@ -1276,21 +1293,25 @@ body.phase-play #shakeRoot { z-index: 10; }
 /* Mini-game screen */
 .minigame-screen:not(.hidden) {
     z-index: 180;
-    padding: calc(var(--dock-h, 88px) + 12px) 12px 20px !important;
+    padding: calc(var(--dock-h, 88px) + 8px) 10px 12px !important;
     background: linear-gradient(180deg, rgba(5,2,12,0.55) 0%, rgba(5,2,12,0.92) 100%);
     backdrop-filter: blur(6px);
     display: flex !important;
     align-items: stretch;
     justify-content: center;
-    min-height: 100vh;
+    min-height: 0;
+    height: 100%;
     box-sizing: border-box;
+    overflow: hidden;
 }
 .minigame-screen.hidden { display: none !important; }
 .mg-panel, .arcade-mg {
-    width: min(980px, 98vw);
-    min-height: calc(100vh - var(--dock-h, 88px) - 36px);
+    width: min(980px, 98%);
+    min-height: 0;
+    max-height: 100%;
+    flex: 1;
     margin: 0 auto;
-    padding: clamp(24px, 3vh, 40px) clamp(20px, 3vw, 36px);
+    padding: clamp(16px, 2vh, 40px) clamp(16px, 2.5vw, 36px);
     display: flex;
     flex-direction: column;
     background: linear-gradient(165deg, rgba(18,6,36,0.98), rgba(6,2,16,0.99));
@@ -1303,8 +1324,10 @@ body.phase-play #shakeRoot { z-index: 10; }
 .mg-timer { font-family: var(--font-h); font-size: clamp(2rem, 5vw, 3.2rem); color: var(--pink); margin-bottom: 16px; }
 .mg-area {
     flex: 1;
-    min-height: min(560px, 58vh);
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    min-height: 0;
+    max-height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    overflow: hidden;
 }
 .mg-input {
     width: min(420px, 92%); padding: 16px 20px; font-size: clamp(1.4rem, 3vw, 2rem); text-align: center;
@@ -1351,7 +1374,7 @@ body.phase-play #shakeRoot { z-index: 10; }
     justify-content: stretch !important;
     align-items: stretch !important;
     padding: var(--dock-h) 0 0 !important;
-    min-height: 100vh; height: 100vh;
+    min-height: 0; height: 100%;
     box-sizing: border-box; overflow: hidden;
 }
 .phase-play .trivia-result:not(.hidden) {
@@ -1359,18 +1382,20 @@ body.phase-play #shakeRoot { z-index: 10; }
     flex-direction: column;
     justify-content: center !important;
     align-items: center !important;
-    padding: calc(var(--dock-h, 88px) + 16px) clamp(16px, 3vw, 32px) clamp(24px, 4vh, 40px) !important;
-    min-height: 100vh;
+    padding: calc(var(--dock-h, 88px) + 12px) clamp(12px, 2.5vw, 32px) clamp(16px, 2.5vh, 32px) !important;
+    min-height: 0;
+    height: 100%;
     box-sizing: border-box;
-    overflow-y: auto;
+    overflow: hidden;
 }
 .phase-play .minigame-screen:not(.hidden) {
     justify-content: center !important;
     align-items: stretch !important;
-    padding: calc(var(--dock-h, 88px) + 8px) 10px 16px !important;
-    min-height: 100vh;
+    padding: calc(var(--dock-h, 88px) + 8px) 10px 12px !important;
+    min-height: 0;
+    height: 100%;
     box-sizing: border-box;
-    overflow-y: auto;
+    overflow: hidden;
 }
 .play-hud { display: none !important; }
 
@@ -1414,7 +1439,8 @@ body.phase-play #shakeRoot { z-index: 10; }
 }
 .arcade-cabinet {
     width: 100%; max-width: none; margin: 0;
-    min-height: calc(100vh - var(--dock-h)); height: calc(100vh - var(--dock-h));
+    min-height: 0; height: 100%;
+    flex: 1;
     display: flex; flex-direction: column;
     overflow: hidden;
     filter: none;
@@ -1655,12 +1681,13 @@ body.phase-play #shakeRoot { z-index: 10; }
     z-index: 24;
     position: fixed;
     inset: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     justify-content: center;
     align-items: center;
-    padding: clamp(88px, 14vh, 120px) clamp(16px, 3vw, 32px) clamp(32px, 5vh, 48px);
+    padding: calc(var(--dock-h, 88px) + 12px) clamp(12px, 2.5vw, 32px) clamp(16px, 2.5vh, 32px);
     box-sizing: border-box;
+    overflow: hidden;
     background: #05020c !important;
 }
 .result-bg {
@@ -1695,8 +1722,9 @@ body.phase-play #shakeRoot { z-index: 10; }
     box-shadow: 0 0 0 1px rgba(0,245,255,0.3), 0 0 100px rgba(255,43,214,0.35);
 }
 .result-panel-full {
-    min-height: auto;
-    max-height: calc(100vh - var(--dock-h, 88px) - 48px);
+    min-height: 0;
+    max-height: 100%;
+    overflow-y: auto;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
 }
 .result-title {
