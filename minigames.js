@@ -250,7 +250,7 @@ AN.Minigames.sprint = (cb) => {
 /* 8. Pac-Man Chase — collect pellets */
 AN.Minigames.pacman = (cb) => {
     const area = AN.Minigames._area();
-    area.innerHTML = '<canvas id="mgPac" width="480" height="360" class="mg-canvas"></canvas><p class="mg-score-txt">Pellets: <span id="mgPel">0</span>/10</p>';
+    area.innerHTML = '<canvas id="mgPac" width="320" height="240" class="mg-canvas"></canvas><p class="mg-score-txt">Pellets: <span id="mgPel">0</span>/10</p>';
     const c = document.getElementById('mgPac');
     const ctx = c.getContext('2d');
     const W = c.width;
