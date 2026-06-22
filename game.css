@@ -1,5 +1,5 @@
 /*
- * build: 78 — keep in sync with index.html game.css?v=78
+ * build: 79 — keep in sync with index.html game.css?v=79
  * ═══════════════════════════════════════════════════════════════════════════
  * game.css — ALL VISUAL STYLES (Presentation / Judge Guide)
  * ═══════════════════════════════════════════════════════════════════════════
@@ -476,9 +476,10 @@ body.phase-play #shakeRoot { z-index: 10; }
 .hub-playing-as strong { color: var(--gold); font-family: var(--font-h); font-size: 1.1em; }
 .hub-switch-btn { padding: 14px 24px !important; font-size: clamp(0.85rem, 1.5vw, 1rem) !important; }
 .hub-danger-zone {
-    margin-top: clamp(28px, 5vh, 48px); padding-top: clamp(24px, 4vh, 36px);
+    margin-top: clamp(8px, 1.5vh, 16px); padding-top: clamp(8px, 1.5vh, 14px);
     border-top: 2px solid rgba(255,51,102,0.25);
     text-align: center;
+    flex-shrink: 0;
 }
 .danger-label {
     font-family: var(--font-h); font-size: clamp(0.75rem, 1.5vw, 0.95rem); letter-spacing: 0.2em;
@@ -513,9 +514,10 @@ body.phase-play #shakeRoot { z-index: 10; }
 }
 .hub-shell {
     width: 100%; min-height: 0; height: 100%; max-width: none;
-    padding: clamp(16px, 2.5vh, 48px) clamp(20px, 3vw, 64px) clamp(18px, 3vh, 56px);
+    padding: clamp(20px, 3vh, 40px) clamp(24px, 4vw, 56px) clamp(20px, 3vh, 36px);
     margin: 0;
-    display: flex; flex-direction: column; justify-content: space-evenly;
+    display: flex; flex-direction: column; justify-content: center;
+    gap: clamp(6px, 1.2vh, 14px);
     overflow: hidden;
     background: linear-gradient(165deg, rgba(16,6,32,0.97), rgba(6,2,14,0.99));
     border: none; border-top: 4px solid rgba(0,245,255,0.4);
@@ -529,9 +531,9 @@ body.phase-play #shakeRoot { z-index: 10; }
     text-shadow: 0 0 16px rgba(0,245,255,0.4);
 }
 .hub-brand {
-    font-family: var(--font-h); font-size: clamp(1.4rem, 4vw, 2.4rem);
+    font-family: var(--font-h); font-size: clamp(2.2rem, 7vw, 4.5rem);
     font-weight: 900; text-align: center; line-height: 1.1;
-    color: var(--gold); margin-bottom: clamp(10px, 2vh, 20px);
+    color: var(--gold); margin-bottom: clamp(8px, 1.5vh, 20px);
     text-shadow: 0 0 30px rgba(255,213,74,0.35), 0 0 60px rgba(255,43,214,0.2);
 }
 .hub-header {
@@ -541,24 +543,24 @@ body.phase-play #shakeRoot { z-index: 10; }
     flex-shrink: 0;
 }
 .hub-rank-label { font-family: var(--font-h); font-size: clamp(1rem, 2vw, 1.35rem); letter-spacing: 0.2em; color: var(--cyan); }
-.hub-rank-value { font-family: var(--font-h); font-size: clamp(1.2rem, 3vw, 2rem); display: block; color: var(--gold); }
+.hub-rank-value { font-family: var(--font-h); font-size: clamp(2.2rem, 5vw, 3.5rem); display: block; color: var(--gold); }
 .xp-track { width: min(480px, 90vw); height: clamp(16px, 2.5vh, 22px); background: #1a1030; border-radius: 11px; margin: 14px 0 10px; overflow: hidden; border: 2px solid rgba(0,245,255,0.4); }
 .xp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--purple), var(--cyan)); transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1); }
 .hub-level { font-family: var(--font-h); font-size: clamp(1.15rem, 2.5vw, 1.5rem); color: #bbc; }
 .hub-currencies { display: flex; align-items: center; justify-content: flex-end; flex: 1; min-width: min(100%, 420px); }
 .hub-coins-big {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-    width: min(100%, 280px);
-    padding: clamp(10px, 2vh, 18px) clamp(16px, 3vw, 28px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    width: min(100%, 380px);
+    padding: clamp(16px, 2.5vh, 28px) clamp(24px, 4vw, 40px);
     background: linear-gradient(165deg, rgba(0,0,0,0.65), rgba(20,8,40,0.85));
     border: 3px solid rgba(255,213,74,0.55);
     border-radius: 20px;
     box-shadow: 0 0 40px rgba(255,213,74,0.2), inset 0 0 30px rgba(255,213,74,0.06);
 }
-.hub-coins-icon { font-size: clamp(1.5rem, 4vw, 2.5rem); line-height: 1; filter: drop-shadow(0 0 16px rgba(255,213,74,0.5)); }
+.hub-coins-icon { font-size: clamp(3rem, 8vw, 4.5rem); line-height: 1; filter: drop-shadow(0 0 16px rgba(255,213,74,0.5)); }
 .hub-coins-value {
     font-family: var(--font-h); font-weight: 900; line-height: 1;
-    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-size: clamp(3.5rem, 10vw, 5.5rem);
     color: var(--gold);
     text-shadow: 0 0 28px rgba(255,213,74,0.65), 0 0 60px rgba(255,213,74,0.25);
     letter-spacing: 0.04em;
@@ -570,8 +572,8 @@ body.phase-play #shakeRoot { z-index: 10; }
 .cur { padding: clamp(14px, 2vh, 18px) clamp(22px, 3vw, 30px); background: rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.15); border-radius: 14px; }
 
 .hub-title {
-    font-family: var(--font-h); font-size: clamp(1.1rem, 3vw, 1.8rem); letter-spacing: 0.14em;
-    color: var(--pink); margin-bottom: 8px; text-align: center;
+    font-family: var(--font-h); font-size: clamp(2rem, 5vw, 3.25rem); letter-spacing: 0.14em;
+    color: var(--pink); margin-bottom: 6px; text-align: center;
     text-shadow: 0 0 30px rgba(255,43,214,0.35);
 }
 .hub-shell .arcade-btn {
@@ -609,7 +611,7 @@ body.phase-play #shakeRoot { z-index: 10; }
 .world-card p { font-size: 0.95rem; color: #9ab; line-height: 1.35; }
 .world-lock { position: absolute; top: 12px; right: 12px; font-family: var(--font-h); font-size: 0.55rem; background: #000a; padding: 4px 8px; border-radius: 4px; }
 
-.hub-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(16px, 3vw, 28px); margin-top: clamp(24px, 4vh, 40px); }
+.hub-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(12px, 2vw, 20px); margin-top: clamp(8px, 1.5vh, 16px); }
 
 .arcade-btn {
     font-family: var(--font-h); font-size: clamp(1rem, 2vw, 1.3rem); font-weight: 700; letter-spacing: 0.1em;
@@ -1872,60 +1874,24 @@ body.phase-play #shakeRoot { z-index: 10; }
 .redemption-ans.c { border-color: #ffd60a; }
 .redemption-ans.d { border-color: #2dc653; }
 
-@media (max-width: 700px) {
+/* Phone only — do NOT use max-height (breaks laptops with short windows) */
+@media (max-width: 430px) {
+    .hub-shell { padding: 10px 12px; gap: 4px; }
+    .hub-brand { font-size: 1.35rem; }
+    .hub-rank-value { font-size: 1.1rem; }
+    .hub-coins-value { font-size: 1.6rem; }
+    .hub-coins-icon { font-size: 1.4rem; }
+    .hub-title { font-size: 1rem; }
+    .hub-sub { font-size: 0.65rem; line-height: 1.25; }
+    .hub-start-btn { font-size: 1rem; padding: 12px 24px; }
+    .hub-actions .arcade-btn { font-size: 0.65rem; padding: 8px 10px; }
+    .danger-btn { font-size: 0.7rem; padding: 8px 14px; }
+    .danger-hint { font-size: 0.6rem; }
     .trivia-cards { grid-template-columns: repeat(2, 1fr); }
     .trivia-card { min-height: clamp(140px, 22vh, 220px); }
     .tc-img-wrap { min-height: clamp(90px, 16vh, 150px); }
     .tc-img { min-height: clamp(70px, 14vh, 130px); }
     .year-node { flex: 0 0 72px; }
-}
-
-/* Phone — compact hub so everything fits one screen, no scroll */
-@media (max-width: 520px), (max-height: 740px) {
-    .hub-shell {
-        padding: 8px 12px 10px;
-        justify-content: flex-start;
-        gap: 2px;
-    }
-    .hub-page-label { font-size: 0.55rem; margin-bottom: 2px; letter-spacing: 0.12em; }
-    .hub-brand { font-size: 1.1rem; margin-bottom: 4px; line-height: 1.05; }
-    .hub-player-bar { margin-bottom: 2px; }
-    .hub-playing-as { font-size: 0.62rem; }
-    .hub-switch-btn { font-size: 0.58rem; padding: 5px 8px; }
-    .hub-header {
-        flex-wrap: wrap;
-        justify-content: center;
-        margin-bottom: 4px;
-        padding-bottom: 4px;
-        gap: 6px;
-    }
-    .hub-rank-label { font-size: 0.55rem; }
-    .hub-rank-value { font-size: 0.95rem; }
-    .hub-level { font-size: 0.7rem; }
-    .xp-track { height: 10px; margin: 6px 0 4px; }
-    .hub-currencies { min-width: 0; justify-content: center; }
-    .hub-coins-big { padding: 4px 10px; width: auto; border-width: 2px; border-radius: 12px; }
-    .hub-coins-icon { font-size: 1.1rem; }
-    .hub-coins-value { font-size: 1.45rem; }
-    .hub-coins-label { font-size: 0.55rem; letter-spacing: 0.15em; }
-    .hub-title { font-size: 0.85rem; margin-bottom: 2px; }
-    .hub-sub { font-size: 0.58rem; margin-bottom: 4px; line-height: 1.2; }
-    .hub-start-wrap { padding: 2px 0; gap: 4px; }
-    .hub-start-btn { font-size: 0.9rem; padding: 9px 22px; border-width: 2px; border-radius: 14px; }
-    .hub-start-hint { font-size: 0.55rem; line-height: 1.25; max-width: 92%; }
-    .hub-resume-btn { font-size: 0.85rem; padding: 8px 18px; }
-    .hub-resume-hint { font-size: 0.55rem; }
-    .hub-actions { margin-top: 4px; gap: 5px; }
-    .hub-actions .arcade-btn { font-size: 0.58rem; padding: 7px 9px; }
-    .hub-danger-zone { display: none; }
-    .status-dock { padding: 6px 8px; gap: 6px; }
-    .dock-score { font-size: 0.85rem; }
-    .mg-panel, .arcade-mg { padding: 10px 12px; }
-    .mg-title { font-size: 1rem; margin-bottom: 4px; }
-    .mg-hint { font-size: 0.7rem; margin-bottom: 6px; }
-    .mg-timer { font-size: 1.2rem; margin-bottom: 8px; }
-    .login-shell { padding: 16px 14px; }
-    .login-title { font-size: 1.4rem; }
     .help-modal-fullscreen,
     .modal-panel-xl {
         width: 100% !important;
