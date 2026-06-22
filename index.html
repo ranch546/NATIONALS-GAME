@@ -18,9 +18,18 @@
         document.head.appendChild(base);
     })();
     (function () {
+        var DESIGN_W = 1920;
+        var DESIGN_H = 1080;
+        var SCALE_FLOOR = 0.34;
+
         function syncViewport() {
-            document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px');
-            document.documentElement.style.setProperty('--app-w', window.innerWidth + 'px');
+            var w = window.innerWidth;
+            var h = window.innerHeight;
+            document.documentElement.style.setProperty('--app-h', h + 'px');
+            document.documentElement.style.setProperty('--app-w', w + 'px');
+            var fit = Math.min(w / DESIGN_W, h / DESIGN_H, 1);
+            var scale = Math.max(SCALE_FLOOR, fit * 0.5);
+            document.documentElement.style.setProperty('--ui-scale', String(scale));
         }
         syncViewport();
         window.addEventListener('resize', syncViewport);
@@ -43,7 +52,7 @@
     })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="game.css?v=77">
+    <link rel="stylesheet" href="game.css?v=78">
 </head>
 <body class="phase-boot">
     <div id="gameLayer">

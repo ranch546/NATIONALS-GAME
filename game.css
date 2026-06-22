@@ -1,5 +1,5 @@
 /*
- * build: 77 — keep in sync with index.html game.css?v=77
+ * build: 78 — keep in sync with index.html game.css?v=78
  * ═══════════════════════════════════════════════════════════════════════════
  * game.css — ALL VISUAL STYLES (Presentation / Judge Guide)
  * ═══════════════════════════════════════════════════════════════════════════
@@ -18,10 +18,8 @@
 :root {
     --app-w: 100vw;
     --app-h: 100dvh;
-    --design-w: 3840;
-    --design-h: 2160;
-    --ui-scale: max(0.36, min(calc(var(--app-w) / var(--design-w)), calc(var(--app-h) / var(--design-h))));
-    --dock-h: clamp(72px, 10vh, 120px);
+    --ui-scale: 0.5;
+    --dock-h: clamp(56px, 8vh, 100px);
     --void: #05020c;
     --pink: #ff2bd6;
     --cyan: #00f5ff;
@@ -74,7 +72,6 @@ html, body {
     pointer-events: none;
 }
 #uiScale {
-    --ui-scale: max(0.36, min(calc(var(--app-w) / var(--design-w)), calc(var(--app-h) / var(--design-h))));
     position: absolute;
     top: 0; left: 0;
     width: calc(var(--app-w) / var(--ui-scale));
@@ -532,9 +529,9 @@ body.phase-play #shakeRoot { z-index: 10; }
     text-shadow: 0 0 16px rgba(0,245,255,0.4);
 }
 .hub-brand {
-    font-family: var(--font-h); font-size: clamp(2.2rem, 7vw, 4.5rem);
+    font-family: var(--font-h); font-size: clamp(1.4rem, 4vw, 2.4rem);
     font-weight: 900; text-align: center; line-height: 1.1;
-    color: var(--gold); margin-bottom: clamp(20px, 3vh, 36px);
+    color: var(--gold); margin-bottom: clamp(10px, 2vh, 20px);
     text-shadow: 0 0 30px rgba(255,213,74,0.35), 0 0 60px rgba(255,43,214,0.2);
 }
 .hub-header {
@@ -544,24 +541,24 @@ body.phase-play #shakeRoot { z-index: 10; }
     flex-shrink: 0;
 }
 .hub-rank-label { font-family: var(--font-h); font-size: clamp(1rem, 2vw, 1.35rem); letter-spacing: 0.2em; color: var(--cyan); }
-.hub-rank-value { font-family: var(--font-h); font-size: clamp(2.2rem, 5vw, 3.5rem); display: block; color: var(--gold); }
+.hub-rank-value { font-family: var(--font-h); font-size: clamp(1.2rem, 3vw, 2rem); display: block; color: var(--gold); }
 .xp-track { width: min(480px, 90vw); height: clamp(16px, 2.5vh, 22px); background: #1a1030; border-radius: 11px; margin: 14px 0 10px; overflow: hidden; border: 2px solid rgba(0,245,255,0.4); }
 .xp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--purple), var(--cyan)); transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1); }
 .hub-level { font-family: var(--font-h); font-size: clamp(1.15rem, 2.5vw, 1.5rem); color: #bbc; }
 .hub-currencies { display: flex; align-items: center; justify-content: flex-end; flex: 1; min-width: min(100%, 420px); }
 .hub-coins-big {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-    width: min(100%, 380px);
-    padding: clamp(20px, 3vh, 32px) clamp(28px, 4vw, 48px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    width: min(100%, 280px);
+    padding: clamp(10px, 2vh, 18px) clamp(16px, 3vw, 28px);
     background: linear-gradient(165deg, rgba(0,0,0,0.65), rgba(20,8,40,0.85));
     border: 3px solid rgba(255,213,74,0.55);
     border-radius: 20px;
     box-shadow: 0 0 40px rgba(255,213,74,0.2), inset 0 0 30px rgba(255,213,74,0.06);
 }
-.hub-coins-icon { font-size: clamp(3rem, 8vw, 4.5rem); line-height: 1; filter: drop-shadow(0 0 16px rgba(255,213,74,0.5)); }
+.hub-coins-icon { font-size: clamp(1.5rem, 4vw, 2.5rem); line-height: 1; filter: drop-shadow(0 0 16px rgba(255,213,74,0.5)); }
 .hub-coins-value {
     font-family: var(--font-h); font-weight: 900; line-height: 1;
-    font-size: clamp(3.5rem, 10vw, 5.5rem);
+    font-size: clamp(1.8rem, 5vw, 3rem);
     color: var(--gold);
     text-shadow: 0 0 28px rgba(255,213,74,0.65), 0 0 60px rgba(255,213,74,0.25);
     letter-spacing: 0.04em;
@@ -573,8 +570,8 @@ body.phase-play #shakeRoot { z-index: 10; }
 .cur { padding: clamp(14px, 2vh, 18px) clamp(22px, 3vw, 30px); background: rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.15); border-radius: 14px; }
 
 .hub-title {
-    font-family: var(--font-h); font-size: clamp(2rem, 5vw, 3.25rem); letter-spacing: 0.14em;
-    color: var(--pink); margin-bottom: 16px; text-align: center;
+    font-family: var(--font-h); font-size: clamp(1.1rem, 3vw, 1.8rem); letter-spacing: 0.14em;
+    color: var(--pink); margin-bottom: 8px; text-align: center;
     text-shadow: 0 0 30px rgba(255,43,214,0.35);
 }
 .hub-shell .arcade-btn {
