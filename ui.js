@@ -435,11 +435,10 @@ AN.UI.refreshTriviaCards = (q, eliminated = new Set()) => {
 };
 
 AN.UI.showTrivia = (q, index, total, timelineId, eliminated = new Set()) => {
+    AN.UI.hide('triviaResult');
     AN.UI.ensurePlayShell();
     const ts = AN.UI.$('triviaScreen');
-    ts?.classList.remove('hidden');
-    ts?.classList.add('view', 'trivia-screen');
-    AN.UI.updatePlayHud();
+    const qEl = AN.UI.$('triviaQuestion');
 
     const banner = AN.UI.levelBanner(q, index, AN.run?.questions || []);
     const levelEl = AN.UI.$('dockLevel');
@@ -452,12 +451,11 @@ AN.UI.showTrivia = (q, index, total, timelineId, eliminated = new Set()) => {
 
     const sl = AN.UI.$('hudStopLabel');
     if (sl) sl.textContent = `Q ${index + 1} / ${total}`;
-    AN.UI.$('triviaQuestion').textContent = q.question;
+    if (qEl) qEl.textContent = q.question;
     const limit = AN.run?.triviaTimeLimit || AN.triviaTimeLimit(AN.run?.save);
     AN.UI.updateTriviaTimer(limit, limit);
     AN.UI.refreshTriviaCards(q, eliminated);
 
-    const colors = ['a', 'b', 'c', 'd'];
     q.answers.forEach((ans, i) => {
         const card = AN.UI.$(`triviaCard${i}`);
         if (!card) return;
@@ -477,6 +475,10 @@ AN.UI.showTrivia = (q, index, total, timelineId, eliminated = new Set()) => {
     });
     AN.UI.setLifelineActive(!!AN.run?.lifeline5050Active);
     AN.UI.updateLifelineBtn();
+    AN.UI.updatePlayHud();
+
+    ts?.classList.add('view', 'trivia-screen');
+    ts?.classList.remove('hidden');
     requestAnimationFrame(() => {
         AN.UI.syncDockHeight();
         requestAnimationFrame(() => AN.UI.syncDockHeight());
