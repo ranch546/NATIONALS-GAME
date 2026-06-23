@@ -19,7 +19,7 @@
     })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="game.css?v=86">
+    <link rel="stylesheet" href="game.css?v=87">
 </head>
 <body class="phase-boot">
     <div id="gameLayer">
@@ -322,11 +322,13 @@
         <section id="triviaScreen" class="view trivia-screen hidden">
             <div class="arcade-cabinet">
                 <div class="trivia-panel">
-                    <div class="trivia-timer-wrap">
-                        <div id="triviaTimerRing" class="trivia-timer-ring"><span id="triviaTimerNum">15</span></div>
-                    </div>
-                    <div class="trivia-q-frame">
-                        <p id="triviaQuestion" class="trivia-question">Question appears here…</p>
+                    <div class="trivia-top">
+                        <div class="trivia-q-frame">
+                            <p id="triviaQuestion" class="trivia-question">Question appears here…</p>
+                        </div>
+                        <div class="trivia-timer-wrap">
+                            <div id="triviaTimerRing" class="trivia-timer-ring"><span id="triviaTimerNum">15</span></div>
+                        </div>
                     </div>
                 <div class="trivia-cards">
                     <button type="button" class="trivia-card a" id="triviaCard0" data-idx="0">
