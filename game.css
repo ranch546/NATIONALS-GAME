@@ -1,4 +1,4 @@
-/* build: 89 — fix question hidden under dock */
+/* build: 90 — fix result overlay, lag, help modal */
 /*
  * ═══════════════════════════════════════════════════════════════════════════
  * game.css — ALL VISUAL STYLES (Presentation / Judge Guide)
@@ -39,6 +39,10 @@ html, body {
 #gameLayer {
     position: fixed; inset: 0; z-index: 0;
     background: #12082a;
+}
+#gameLayer.canvas-off {
+    visibility: hidden;
+    pointer-events: none;
 }
 #gameCanvas {
     position: absolute; inset: 0; z-index: 1;
@@ -130,6 +134,14 @@ body.phase-play #shakeRoot { z-index: 10; }
     filter: drop-shadow(0 0 20px rgba(0,245,255,0.3));
 }
 @keyframes pbGridScroll { to { background-position: 0 64px, 64px 0, 0 64px; } }
+body.phase-play .pb-grid { animation: none; opacity: 0.5; }
+body.phase-play .heart-slot.full { animation: none; }
+body.phase-play .trivia-screen.timer-urgent .trivia-panel,
+body.phase-play .trivia-screen.timer-critical .trivia-panel { animation: none; }
+body.phase-play .trivia-timer-ring.urgent,
+body.phase-play .trivia-timer-ring.critical { animation: none; }
+body.phase-play .trivia-timer-ring.urgent span,
+body.phase-play .trivia-timer-ring.critical span { animation: none; }
 .pb-scan {
     position: absolute; inset: 0; opacity: 0.04;
     background: repeating-linear-gradient(0deg, transparent, transparent 2px, #000 2px, #000 4px);
@@ -1384,16 +1396,16 @@ body.phase-play #shakeRoot { z-index: 10; }
     flex-direction: column;
     justify-content: center !important;
     align-items: center !important;
-    padding: calc(var(--dock-h, 88px) + 16px) clamp(16px, 3vw, 32px) clamp(24px, 4vh, 40px) !important;
-    min-height: 100vh;
+    padding: calc(var(--dock-h, 140px) + 12px) 16px 16px !important;
+    min-height: 100%; height: 100%;
     box-sizing: border-box;
     overflow-y: auto;
 }
 .phase-play .minigame-screen:not(.hidden) {
     justify-content: center !important;
     align-items: stretch !important;
-    padding: calc(var(--dock-h, 88px) + 8px) 10px 16px !important;
-    min-height: 100vh;
+    padding: calc(var(--dock-h, 140px) + 8px) 10px 16px !important;
+    min-height: 100%; height: 100%;
     box-sizing: border-box;
     overflow-y: auto;
 }
@@ -1548,7 +1560,10 @@ body.phase-play #shakeRoot { z-index: 10; }
     position: relative; z-index: 6; margin: 0;
     flex: 1 1 auto; min-width: 0; flex-shrink: 0;
     min-height: 72px;
-    overflow-y: auto;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: clamp(14px, 2vh, 24px) clamp(16px, 3vw, 28px);
     border-radius: 16px;
     background: rgba(0,0,0,0.72);
@@ -1691,14 +1706,14 @@ body.phase-play #shakeRoot { z-index: 10; }
 .trivia-result:not(.hidden) {
     display: flex !important;
     flex-direction: column;
-    z-index: 24;
-    position: fixed;
+    z-index: 30;
+    position: absolute;
     inset: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100% !important;
+    height: 100% !important;
     justify-content: center;
     align-items: center;
-    padding: clamp(88px, 14vh, 120px) clamp(16px, 3vw, 32px) clamp(32px, 5vh, 48px);
+    padding: calc(var(--dock-h, 140px) + 12px) 16px 16px;
     box-sizing: border-box;
     background: #05020c !important;
 }
@@ -1890,3 +1905,53 @@ body.phase-play #shakeRoot { z-index: 10; }
 }
 #uiFit .hub-shell { min-height: 100% !important; height: 100% !important; }
 #uiFit .arcade-cabinet { flex: 1 1 auto; min-height: 0; height: auto; max-height: 100%; }
+
+/* Result overlay must cover full scaled canvas, not 100vw */
+#uiFit .trivia-result:not(.hidden) {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 35 !important;
+}
+
+/* How to Play — full screen inside scaled UI */
+#uiFit #helpModal.view-modal-help:not(.hidden) {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 8px !important;
+    z-index: 40 !important;
+}
+#uiFit .help-modal-fullscreen {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 12px !important;
+    padding: clamp(20px, 3vh, 36px) clamp(24px, 4vw, 48px) !important;
+}
+#uiFit .help-modal-fullscreen h2 {
+    font-size: clamp(2.4rem, 6vw, 4rem) !important;
+}
+#uiFit .help-modal-fullscreen .modal-sub {
+    font-size: clamp(1.2rem, 2.8vw, 1.8rem) !important;
+}
+#uiFit .help-modal-fullscreen .help-card-title {
+    font-size: clamp(1.3rem, 3vw, 1.85rem) !important;
+}
+#uiFit .help-modal-fullscreen .help-card-list {
+    font-size: clamp(1.05rem, 2.2vw, 1.35rem) !important;
+    line-height: 1.45 !important;
+}
+#uiFit .help-modal-fullscreen .help-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px 18px !important;
+    overflow-y: auto;
+}
+#uiFit .help-modal-fullscreen .modal-landscape-btn {
+    font-size: clamp(1.1rem, 2.5vw, 1.45rem) !important;
+    padding: 14px 32px !important;
+    flex-shrink: 0;
+}
