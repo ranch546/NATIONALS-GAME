@@ -60,7 +60,7 @@
     })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="game.css?v=81">
+    <link rel="stylesheet" href="game.css?v=83">
 </head>
 <body class="phase-boot">
     <div id="gameLayer">
@@ -363,15 +363,15 @@
         <!-- [JUDGE] TRIVIA SCREEN — Question + 4 cards; images from js/cueArt.js (Wikipedia) -->
         <section id="triviaScreen" class="view trivia-screen hidden">
             <div class="arcade-cabinet">
-                <div class="trivia-panel">
-                    <div class="trivia-top">
-                        <div class="trivia-q-frame">
-                            <p id="triviaQuestion" class="trivia-question">Question appears here…</p>
-                        </div>
-                        <div class="trivia-timer-wrap">
-                            <div id="triviaTimerRing" class="trivia-timer-ring"><span id="triviaTimerNum">15</span></div>
-                        </div>
+                <div class="trivia-question-bar">
+                    <div class="trivia-q-frame">
+                        <p id="triviaQuestion" class="trivia-question">Question appears here…</p>
                     </div>
+                    <div class="trivia-timer-wrap">
+                        <div id="triviaTimerRing" class="trivia-timer-ring"><span id="triviaTimerNum">15</span></div>
+                    </div>
+                </div>
+                <div class="trivia-panel">
                 <div class="trivia-cards">
                     <button type="button" class="trivia-card a" id="triviaCard0" data-idx="0">
                         <div class="tc-img-wrap"><img class="tc-img" alt="" /><span class="tc-letter">A</span></div>
@@ -475,7 +475,7 @@
     <script src="minigames.js?v=67"></script>
     <script src="worlds.js?v=32"></script>
     <script src="engine.js?v=46"></script>
-    <script src="ui.js?v=65"></script>
+    <script src="ui.js?v=66"></script>
     <script src="main.js?v=59"></script>
 </body>
 </html>

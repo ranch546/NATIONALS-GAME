@@ -1,5 +1,5 @@
 /*
- * build: 82 — keep in sync with index.html game.css?v=82
+ * build: 83 — keep in sync with index.html game.css?v=83
  * ═══════════════════════════════════════════════════════════════════════════
  * game.css — ALL VISUAL STYLES (Presentation / Judge Guide)
  * ═══════════════════════════════════════════════════════════════════════════
@@ -1420,10 +1420,9 @@ body.phase-play #shakeRoot { z-index: 10; }
 .phase-play .trivia-screen:not(.hidden) {
     justify-content: stretch !important;
     align-items: stretch !important;
-    inset: auto 0 0 0 !important;
-    top: var(--dock-h, 150px) !important;
-    height: auto !important;
-    padding: 0 !important;
+    inset: 0 !important;
+    padding: var(--dock-h, 150px) 0 0 !important;
+    height: 100% !important;
     min-height: 0;
     box-sizing: border-box;
     overflow: hidden;
@@ -1498,26 +1497,29 @@ body.phase-play #shakeRoot { z-index: 10; }
     filter: none;
 }
 
-.trivia-panel {
-    flex: 1; display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
-    gap: 10px;
-    height: 100%;
-    padding: 10px clamp(12px, 2vw, 28px) 12px;
-    background: linear-gradient(165deg, rgba(14,4,28,0.98), rgba(4,2,12,0.99));
-    border: none;
-    border-radius: 0;
-    box-shadow: inset 0 0 80px rgba(255,43,214,0.04);
-    position: relative; overflow: hidden; min-height: 0;
-}
-.trivia-top {
+/* Question + timer — own row, cannot be crushed by answer cards */
+.trivia-question-bar {
+    flex: 0 0 auto;
     display: flex;
     align-items: stretch;
-    gap: 14px;
-    flex-shrink: 0;
-    min-height: 84px;
-    max-height: none;
+    gap: 12px;
+    min-height: 92px;
+    padding: 10px 14px;
+    background: linear-gradient(180deg, #12082a 0%, #0a0418 100%);
+    border-bottom: 3px solid var(--cyan);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.45);
     z-index: 5;
+}
+
+.trivia-panel {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 12px 10px;
+    background: linear-gradient(165deg, rgba(14,4,28,0.98), rgba(4,2,12,0.99));
+    overflow: hidden;
+    position: relative;
 }
 .trivia-timer-wrap {
     position: static;
@@ -1596,28 +1598,32 @@ body.phase-play #shakeRoot { z-index: 10; }
 }
 .trivia-q-frame {
     position: relative; z-index: 1;
-    flex: 1; min-width: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 72px;
     margin: 0;
-    padding: 14px 18px;
-    border-radius: 14px;
-    background: linear-gradient(160deg, rgba(24,10,48,0.98), rgba(8,4,20,0.99));
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: linear-gradient(160deg, #1e0c42 0%, #0c0620 100%);
     border: 3px solid var(--cyan);
-    box-shadow: 0 0 24px rgba(0,245,255,0.25), inset 0 0 30px rgba(0,245,255,0.08);
+    box-shadow: 0 0 20px rgba(0,245,255,0.3), inset 0 0 24px rgba(0,245,255,0.1);
     display: flex; align-items: center; justify-content: center;
-    overflow-y: auto;
 }
 .trivia-question {
-    font-size: clamp(1.15rem, 2.8vw, 2rem);
+    font-size: clamp(1.05rem, 2.4vw, 1.85rem);
     font-weight: 800;
     line-height: 1.35;
     text-align: center;
     color: #ffffff;
-    text-shadow: 0 0 18px rgba(0,245,255,0.45), 0 2px 8px rgba(0,0,0,0.9);
+    text-shadow: 0 0 16px rgba(0,245,255,0.5), 0 2px 6px #000;
 }
 .trivia-cards {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(8px, 1.2vh, 14px);
-    position: relative; z-index: 1; flex: 1; min-height: 0;
-    align-content: stretch; overflow: hidden;
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+    flex: 1 1 0;
+    min-height: 0;
+    position: relative; z-index: 1;
+    align-content: stretch;
+    overflow: hidden;
 }
 @media (min-width: 800px) { .trivia-cards { grid-template-columns: repeat(4, 1fr); } }
 
@@ -1646,9 +1652,8 @@ body.phase-play #shakeRoot { z-index: 10; }
 .trivia-card.c:hover { box-shadow: 0 12px 36px rgba(255,214,10,0.2); }
 .trivia-card.d:hover { box-shadow: 0 12px 36px rgba(139,92,246,0.25); }
 .tc-img-wrap {
-    position: relative; flex: 1 1 auto;
+    position: relative; flex: 1 1 0;
     min-height: 0;
-    max-height: 62%;
     width: 100%;
     display: flex; align-items: center; justify-content: center;
     padding: clamp(10px, 1.6vh, 16px) clamp(10px, 1.8vw, 14px);
