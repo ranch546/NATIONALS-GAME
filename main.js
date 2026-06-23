@@ -371,14 +371,14 @@ AN.Main = {
         if (!r.levelStats) r.levelStats = AN.Main.freshLevelStats();
         if (r.levelStats[tier]) r.levelStats[tier].asked++;
 
+        AN.UI.hide('triviaResult');
         AN.Engine.clear();
         AN.UI.hide('lifelinePrompt');
-        AN.CueArt.preloadQuestionImages(q).then(() => {
-            AN.UI.showTrivia(q, index, r.questions.length, r.timelineId, r.eliminated);
-            AN.UI.setLifelineActive(false);
-            AN.UI.updateLifelineBtn();
-            AN.Main.startTriviaTimer();
-        });
+        AN.UI.showTrivia(q, index, r.questions.length, r.timelineId, r.eliminated);
+        AN.UI.setLifelineActive(false);
+        AN.UI.updateLifelineBtn();
+        AN.Main.startTriviaTimer();
+        AN.CueArt.preloadQuestionImages(q).catch(() => {});
     },
 
     /* ── ANSWER CHECK: scoring, XP, level-up (+10 coins), hearts, lucky save ── */
@@ -453,6 +453,7 @@ AN.Main = {
         if (r.hearts <= 0 || r.playSub === 'levelfail') return;
         if (AN.quizLevelGateBlocks(r)) return;
         AN.UI.hide('triviaResult');
+        AN.UI.hide('triviaScreen');
         r.playSub = 'transition';
         AN.Main.advanceStop();
     },
@@ -522,7 +523,7 @@ AN.Main = {
             if (advancingTo) {
                 AN.UI.showLevelAdvance(advancingTo, goNext, r._levelCoinGain);
             } else {
-                r._advanceTimer = setTimeout(goNext, 400);
+                goNext();
             }
         }
     },
@@ -682,10 +683,9 @@ AN.Main = {
         r.triviaTimeLimit = snap.triviaTimeLimit || AN.triviaTimeLimit(r.save);
         const timeLeft = snap.triviaTimer != null ? snap.triviaTimer : r.triviaTimeLimit;
 
-        AN.CueArt.preloadQuestionImages(q).then(() => {
-            AN.UI.showTrivia(q, r.stopIndex, r.questions.length, r.timelineId, r.eliminated);
-            AN.Main.startTriviaTimer(timeLeft);
-        });
+        AN.UI.showTrivia(q, r.stopIndex, r.questions.length, r.timelineId, r.eliminated);
+        AN.Main.startTriviaTimer(timeLeft);
+        AN.CueArt.preloadQuestionImages(q).catch(() => {});
     },
 
     toHub() {
