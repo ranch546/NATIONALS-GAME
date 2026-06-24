@@ -1,4 +1,4 @@
-/* build: 95 — phone scroll + center (laptop scale unchanged) */
+/* build: 96 — deep phone layout (laptop scale unchanged) */
 /*
  * ═══════════════════════════════════════════════════════════════════════════
  * game.css — ALL VISUAL STYLES (Presentation / Judge Guide)
@@ -1995,20 +1995,32 @@ body.phase-play .trivia-timer-ring.critical span { animation: none; }
     flex-shrink: 0;
 }
 
-/* PHONE ONLY — scroll + center; laptop (769px+) unchanged */
+/* ═══ PHONE ONLY (≤768px) — compact UI + scroll every screen; MacBook untouched ═══ */
 @media (max-width: 768px) {
+    :root {
+        --dock-h: 68px;
+        --phone-pad: 10px;
+    }
+
     html, body {
-        font-size: clamp(14px, 3.6vw, 16px);
-        overflow-x: hidden;
+        font-size: 10px !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        height: auto !important;
+        min-height: 100dvh;
+        -webkit-text-size-adjust: 100%;
     }
 
     #shakeRoot {
-        overflow-y: auto;
-        overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;
+        position: relative !important;
+        inset: auto !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 100dvh;
+        overflow: visible !important;
     }
 
-    /* No scale on phone — fixes cut-off answers and left/right drift */
+    /* No laptop scale on phone */
     #uiFit {
         position: relative !important;
         top: auto !important;
@@ -2020,224 +2032,326 @@ body.phase-play .trivia-timer-ring.critical span { animation: none; }
         overflow: visible !important;
     }
 
-    #uiFit .view {
+    /* Undo desktop fixed-height shell */
+    #uiFit .view,
+    #uiFit .view-hub,
+    #uiFit .view-boot,
+    #uiFit .view-login,
+    #uiFit .view-warp,
+    #uiFit .view-victory,
+    #uiFit .trivia-screen,
+    #uiFit .trivia-result,
+    #uiFit .minigame-screen,
+    #uiFit .view-modal,
+    #uiFit .view-level-advance,
+    #uiFit .phase-play .trivia-screen,
+    #uiFit .phase-play .trivia-result,
+    #uiFit .phase-play .minigame-screen,
+    #uiFit .hub-shell {
         position: relative !important;
         inset: auto !important;
         width: 100% !important;
-        min-height: 100dvh;
+        min-height: auto !important;
         height: auto !important;
         max-height: none !important;
     }
 
+    /* ── Every screen: scroll + center ── */
+    #uiFit .view:not(.hidden) {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        min-height: 100dvh !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        touch-action: pan-y;
+        box-sizing: border-box;
+        padding-left: var(--phone-pad) !important;
+        padding-right: var(--phone-pad) !important;
+        padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
+    }
+
+    /* Full-screen overlays that still scroll */
     #uiFit .view-boot:not(.hidden),
     #uiFit .view-warp:not(.hidden),
-    #uiFit .view-level-advance:not(.hidden) {
+    #uiFit .view-level-advance:not(.hidden),
+    #uiFit .view-modal:not(.hidden),
+    body.phase-play #uiFit .phase-play .trivia-screen:not(.hidden),
+    body.phase-play #uiFit .trivia-result:not(.hidden),
+    body.phase-play #uiFit .minigame-screen:not(.hidden) {
         position: fixed !important;
         inset: 0 !important;
         width: 100% !important;
         height: 100% !important;
         min-height: 100dvh !important;
+        max-height: none !important;
         z-index: 20;
-    }
-
-    #uiFit .view-hub:not(.hidden),
-    #uiFit .view-login:not(.hidden),
-    #uiFit .view-modal:not(.hidden),
-    #uiFit .view-victory:not(.hidden),
-    #uiFit .trivia-result:not(.hidden) {
-        display: flex !important;
-        flex-direction: column !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
-        justify-content: flex-start !important;
-        align-items: center !important;
-        padding-left: 12px !important;
-        padding-right: 12px !important;
-        padding-bottom: max(24px, env(safe-area-inset-bottom)) !important;
     }
 
-    .view-hub { overflow-y: auto !important; align-items: center !important; }
-
-    #uiFit .hub-shell {
-        min-height: auto !important;
-        height: auto !important;
-        max-height: none !important;
-        width: 100% !important;
-        max-width: 480px !important;
-        margin: 0 auto !important;
-        overflow: visible !important;
-        justify-content: flex-start !important;
-        align-items: center !important;
-        text-align: center;
-        padding: 20px 16px 48px !important;
-    }
-
-    .hub-header {
-        justify-content: center !important;
-        align-items: center !important;
-        flex-direction: column !important;
-        text-align: center;
-        width: 100%;
-    }
-    .hub-currencies { justify-content: center !important; width: 100%; }
-    .hub-coins-big { margin: 0 auto; }
-    .hub-actions { justify-content: center !important; width: 100%; }
-    .hub-start-wrap { align-items: center !important; width: 100%; }
-    .hub-resume-btn, .hub-start-btn { width: 100%; max-width: 320px; }
-
-    #uiFit .view-login .login-shell {
-        width: 100% !important;
-        max-width: 480px !important;
-        margin: 0 auto !important;
-        padding-bottom: 40px;
-    }
-
-    #uiFit .view-modal {
-        padding-top: 12px !important;
-        padding-bottom: max(24px, env(safe-area-inset-bottom)) !important;
-    }
-
-    #uiFit .modal-panel,
-    #uiFit .modal-panel-xl,
-    #uiFit .modal-panel-landscape {
-        width: 94% !important;
-        max-width: 480px !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        max-height: none !important;
-        overflow: visible !important;
-        margin-bottom: 16px;
-    }
-
-    /* Quiz — scroll down to see all answer cards */
-    #uiFit .phase-play .trivia-screen:not(.hidden) {
-        position: relative !important;
-        inset: auto !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-        min-height: 100dvh !important;
-        height: auto !important;
-        max-height: none !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        -webkit-overflow-scrolling: touch;
-        padding-top: calc(var(--dock-h, 118px) + 4px) !important;
-        padding-bottom: max(32px, env(safe-area-inset-bottom)) !important;
+    body.phase-play #uiFit .phase-play .trivia-screen:not(.hidden),
+    body.phase-play #uiFit .trivia-result:not(.hidden),
+    body.phase-play #uiFit .minigame-screen:not(.hidden) {
+        z-index: 22;
+        padding-top: calc(var(--dock-h) + 4px) !important;
         padding-left: 0 !important;
         padding-right: 0 !important;
     }
 
-    .phase-play .trivia-screen {
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        align-items: center !important;
+    #uiFit .view-modal:not(.hidden) { z-index: 40; padding-top: 8px !important; }
+    #uiFit #helpModal.view-modal-help:not(.hidden) {
+        position: fixed !important;
+        inset: 0 !important;
+        padding: 6px !important;
+        z-index: 45 !important;
     }
 
+    /* ── BOOT ── */
+    .boot-content { padding: 16px 12px 32px !important; }
+    .logo-main { font-size: 1.8rem !important; line-height: 1.05 !important; }
+    .logo-sub { font-size: 0.65rem !important; margin-bottom: 16px !important; }
+    .boot-stamp { font-size: 0.55rem !important; }
+    .boot-bar { width: min(260px, 85vw) !important; }
+    .boot-status { font-size: 0.55rem !important; }
+
+    /* ── LOGIN ── */
+    .view-login { padding: 12px 0 !important; }
+    .login-shell {
+        width: 100% !important;
+        max-width: 360px !important;
+        min-height: auto !important;
+        padding: 18px 14px 28px !important;
+        margin: 0 auto !important;
+        border-radius: 16px !important;
+        border-width: 2px !important;
+    }
+    .login-title { font-size: 1.4rem !important; }
+    .login-sub { font-size: 0.72rem !important; margin-bottom: 14px !important; }
+    .login-badge { font-size: 0.6rem !important; }
+    .login-input { font-size: 0.85rem !important; padding: 10px 12px !important; }
+    .player-card { padding: 10px 12px !important; }
+    .player-card-name { font-size: 0.9rem !important; }
+    .player-card-meta { font-size: 0.62rem !important; }
+    .player-delete-btn { font-size: 0.5rem !important; padding: 0 8px !important; }
+
+    /* ── HUB ── */
+    .view-hub { padding: 0 !important; }
+    .hub-shell {
+        width: 100% !important;
+        max-width: 360px !important;
+        padding: 14px 12px 40px !important;
+        margin: 0 auto !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        text-align: center;
+    }
+    .hub-page-label { font-size: 0.6rem !important; margin-bottom: 6px !important; }
+    .hub-brand { font-size: 1.5rem !important; margin-bottom: 10px !important; }
+    .hub-header {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        margin-bottom: 12px !important;
+        padding-bottom: 10px !important;
+        width: 100%;
+    }
+    .hub-rank-label { font-size: 0.55rem !important; }
+    .hub-rank-value { font-size: 1.1rem !important; }
+    .xp-track { width: 100% !important; max-width: 200px !important; height: 8px !important; margin: 6px auto !important; }
+    .hub-level { font-size: 0.65rem !important; }
+    .hub-currencies { justify-content: center !important; width: 100%; }
+    .hub-coins-big { padding: 8px 12px !important; max-width: 160px !important; }
+    .hub-coins-icon { font-size: 1.4rem !important; }
+    .hub-coins-value { font-size: 1.5rem !important; }
+    .hub-coins-label { font-size: 0.55rem !important; }
+    .hub-title { font-size: 1rem !important; margin-bottom: 8px !important; }
+    .hub-sub { font-size: 0.68rem !important; margin-bottom: 12px !important; line-height: 1.35 !important; }
+    .hub-start-wrap { padding: 10px 0 !important; gap: 8px !important; flex: 0 !important; }
+    .hub-resume-btn, .hub-start-btn {
+        font-size: 0.78rem !important;
+        padding: 11px 18px !important;
+        width: 100% !important;
+        max-width: 280px !important;
+        border-width: 2px !important;
+        border-radius: 12px !important;
+    }
+    .hub-resume-hint, .hub-start-hint { font-size: 0.65rem !important; }
+    .hub-actions { gap: 6px !important; margin-top: 10px !important; width: 100%; justify-content: center !important; }
+    .hub-shell .arcade-btn { font-size: 0.62rem !important; padding: 9px 10px !important; letter-spacing: 0.04em !important; }
+    .hub-danger-zone { margin-top: 10px !important; padding-top: 10px !important; }
+    .danger-label { font-size: 0.65rem !important; }
+    .danger-btn { font-size: 0.65rem !important; padding: 8px 14px !important; }
+    .danger-hint { font-size: 0.6rem !important; }
+
+    /* ── STATUS DOCK (play) ── */
+    .status-dock {
+        position: fixed !important;
+        top: 0; left: 0; right: 0;
+        z-index: 200 !important;
+        padding: 4px 6px 5px !important;
+        gap: 3px 6px !important;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+    }
+    .dock-level, .dock-level-sub { font-size: 0.58rem !important; max-width: 28vw !important; }
+    .dock-run-time, .dock-time { font-size: 0.55rem !important; }
+    .dock-hub-btn { font-size: 0.55rem !important; padding: 4px 7px !important; margin-bottom: 2px !important; border-radius: 6px !important; }
+    .dock-center { padding: 3px 8px !important; gap: 6px !important; border-radius: 8px !important; }
+    .dock-stat { min-width: 46px !important; gap: 2px !important; }
+    .dock-divider { height: 24px !important; }
+    .dock-k { font-size: 0.5rem !important; }
+    .dock-points { font-size: 1.15rem !important; }
+    .dock-q { font-size: 0.58rem !important; }
+    .dock-player { font-size: 0.58rem !important; max-width: 28vw !important; }
+    .dock-lifeline-btn { font-size: 0.52rem !important; padding: 4px 8px !important; }
+
+    /* ── TRIVIA ── */
+    .phase-play .trivia-screen {
+        overflow-y: auto !important;
+        padding: calc(var(--dock-h) + 4px) 0 0 !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+    }
     .arcade-cabinet {
         width: 100% !important;
+        max-width: 360px !important;
         overflow: visible !important;
         height: auto !important;
         max-height: none !important;
         flex: 0 0 auto !important;
+        margin: 0 auto;
     }
-
     .trivia-panel {
         width: 100% !important;
-        max-width: 480px !important;
-        margin: 0 auto !important;
+        max-width: 360px !important;
+        padding: 8px 10px 16px !important;
         overflow: visible !important;
         height: auto !important;
         min-height: 0 !important;
-        flex: 0 0 auto !important;
         display: flex !important;
         flex-direction: column !important;
-        gap: 10px;
-        padding: 10px 12px 20px !important;
+        gap: 8px !important;
     }
-
-    .trivia-top { flex-shrink: 0; min-height: auto; width: 100%; }
-    .trivia-q-frame { min-height: auto; }
-
+    .trivia-top { min-height: auto !important; gap: 6px !important; flex-shrink: 0; }
+    .trivia-q-frame { padding: 8px 10px !important; min-height: auto !important; }
+    .trivia-question { font-size: 0.82rem !important; line-height: 1.3 !important; }
+    .trivia-timer-ring { width: 40px !important; height: 40px !important; font-size: 0.7rem !important; flex-shrink: 0; }
+    .trivia-timer-wrap { flex-shrink: 0; }
     .trivia-cards {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
+        gap: 6px !important;
         overflow: visible !important;
         min-height: auto !important;
         height: auto !important;
-        align-content: start !important;
-        width: 100%;
     }
+    .trivia-card { min-height: 88px !important; height: auto !important; border-radius: 10px !important; border-width: 2px !important; }
+    .tc-img-wrap { min-height: 44px !important; padding: 5px !important; }
+    .tc-text { font-size: 0.6rem !important; padding: 5px 4px !important; line-height: 1.2 !important; }
+    .tc-letter { width: 18px !important; height: 18px !important; font-size: 0.55rem !important; }
 
-    .trivia-card {
-        min-height: 130px !important;
-        height: auto !important;
-    }
-
-    .tc-img-wrap { min-height: 68px !important; flex: 1 1 auto; }
-
-    #uiFit .phase-play .minigame-screen:not(.hidden) {
-        position: relative !important;
-        overflow-y: auto !important;
-        align-items: center !important;
-        min-height: 100dvh !important;
-        height: auto !important;
-        max-height: none !important;
-        padding-bottom: max(24px, env(safe-area-inset-bottom)) !important;
-    }
-
-    .mg-panel { margin: 0 auto; max-width: 480px; }
-
-    :root { --dock-h: 118px; }
-    .status-dock { padding: 8px 10px 10px; gap: 6px; }
-    .dock-center { gap: 10px; padding: 6px 12px; }
-    .dock-meta { align-items: center !important; text-align: center !important; }
-    .dock-right { align-items: center !important; text-align: center !important; }
-
+    /* ── RESULT / VICTORY ── */
     #uiFit .trivia-result:not(.hidden) {
+        position: fixed !important;
         align-items: center !important;
+        justify-content: flex-start !important;
+        padding: calc(var(--dock-h) + 8px) 10px 24px !important;
+        overflow-y: auto !important;
     }
-
     #uiFit .result-panel,
     #uiFit .arcade-result {
-        width: 92% !important;
-        max-width: 400px !important;
-        margin: 12px auto 24px !important;
+        width: 94% !important;
+        max-width: 340px !important;
+        margin: 8px auto 20px !important;
+        padding: 14px 12px !important;
     }
-
-    #uiFit .result-panel-full {
-        max-height: none !important;
-        margin: 12px auto 24px !important;
-    }
-
-    #uiFit .victory-shell {
-        width: 100%;
-        max-width: 480px;
+    #uiFit .result-panel-full { max-height: none !important; }
+    .result-title { font-size: 1.8rem !important; }
+    .result-sub, .result-bonus { font-size: 0.75rem !important; }
+    .result-actions .arcade-btn { font-size: 0.72rem !important; padding: 10px 14px !important; }
+    .victory-shell {
+        width: 100% !important;
+        max-width: 360px !important;
+        padding: 12px 10px 32px !important;
         margin: 0 auto;
-        padding-bottom: 32px;
         align-items: center;
     }
+    .victory-title { font-size: 1.6rem !important; }
+    .victory-stat { font-size: 0.75rem !important; }
 
+    /* ── MODALS / HELP / LEADERBOARD ── */
+    #uiFit .modal-panel,
+    #uiFit .modal-panel-xl,
+    #uiFit .modal-panel-landscape,
+    #uiFit .pin-panel,
+    #uiFit .delete-panel {
+        width: 94% !important;
+        max-width: 360px !important;
+        margin: 0 auto 14px !important;
+        padding: 16px 14px !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    .modal-panel h2 { font-size: 1.2rem !important; }
+    .modal-sub { font-size: 0.72rem !important; }
     #uiFit .help-modal-fullscreen {
+        width: 100% !important;
         height: auto !important;
         min-height: 0 !important;
         max-height: none !important;
+        padding: 14px 12px 20px !important;
         overflow: visible !important;
-        margin: 0 auto;
+        border-radius: 10px !important;
     }
-
+    #uiFit .help-modal-fullscreen h2 { font-size: 1.3rem !important; }
+    #uiFit .help-modal-fullscreen .modal-sub { font-size: 0.72rem !important; }
+    #uiFit .help-modal-fullscreen .help-card-title { font-size: 0.85rem !important; }
+    #uiFit .help-modal-fullscreen .help-card-list { font-size: 0.68rem !important; line-height: 1.35 !important; }
     #uiFit .help-modal-fullscreen .help-grid {
         grid-template-columns: 1fr !important;
+        gap: 8px !important;
         overflow: visible !important;
-        padding-bottom: 16px;
     }
+    #uiFit .help-modal-fullscreen .modal-landscape-btn { font-size: 0.75rem !important; padding: 10px 20px !important; min-width: 0 !important; width: 100%; }
+    #uiFit .lb-table-wrap { max-height: 45vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .lb-table-head { font-size: 0.55rem !important; padding: 6px 8px !important; }
+    .lb-row { font-size: 0.68rem !important; padding: 8px !important; }
 
-    #uiFit .lb-table-wrap {
-        max-height: 50vh;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+    /* ── MINIGAMES ── */
+    #uiFit .phase-play .minigame-screen:not(.hidden) {
+        padding: calc(var(--dock-h) + 6px) 8px 20px !important;
+        align-items: center !important;
     }
+    .mg-panel, .arcade-mg {
+        width: 100% !important;
+        max-width: 360px !important;
+        padding: 10px !important;
+        margin: 0 auto;
+        height: auto !important;
+        max-height: none !important;
+    }
+    .mg-title { font-size: 1rem !important; }
+    .mg-canvas { width: 100% !important; max-width: 320px !important; height: auto !important; }
+
+    /* ── WARP / LEVEL ADVANCE ── */
+    .warp-year { font-size: 1.6rem !important; }
+    .warp-landmark { font-size: 0.8rem !important; }
+    .level-advance-title { font-size: 1.4rem !important; }
+    .level-advance-tip { font-size: 0.72rem !important; }
+
+    /* ── LEVEL UP TOAST ── */
+    .level-up-num { font-size: 2rem !important; }
+    .level-up-label { font-size: 0.7rem !important; }
+    .level-up-reward { font-size: 0.85rem !important; }
+
+    /* ── UPGRADES SHOP ── */
+    .upgrade-card { padding: 10px !important; }
+    .upgrade-name { font-size: 0.8rem !important; }
+    .upgrade-desc { font-size: 0.65rem !important; }
+
+    .arcade-btn { font-size: 0.72rem !important; }
+    .arcade-btn-lg { font-size: 0.78rem !important; padding: 10px 16px !important; }
 }
