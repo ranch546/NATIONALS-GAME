@@ -271,6 +271,25 @@ body.phase-play .trivia-timer-ring.critical span { animation: none; }
     color: #ff3366; text-shadow: 0 0 14px rgba(255,50,100,0.55);
     line-height: 1;
 }
+.dock-lives-sep {
+    color: rgba(255,255,255,0.2);
+    font-size: 1.1rem;
+    margin: 0 2px;
+    user-select: none;
+}
+.shields-display { display: flex; gap: 3px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.shields-count {
+    font-family: var(--font-h); font-size: clamp(1.2rem, 2.4vw, 1.65rem); font-weight: 900;
+    color: var(--cyan); text-shadow: 0 0 12px rgba(0,245,255,0.45);
+    line-height: 1;
+}
+.shield-slot {
+    font-size: 1.45rem; line-height: 1; transition: transform 0.25s, opacity 0.25s;
+    filter: drop-shadow(0 0 8px rgba(0,245,255,0.45));
+}
+.shield-slot.full { color: var(--cyan); }
+.shield-slot.empty { color: rgba(255,255,255,0.2); filter: none; font-size: 1.2rem; }
+.shield-slot.shield-lost { animation: heartDrop 0.45s ease forwards; }
 .heart-slot {
     font-size: 1.9rem; line-height: 1; transition: transform 0.25s, opacity 0.25s;
     filter: drop-shadow(0 0 10px rgba(255,50,100,0.6));
@@ -1837,6 +1856,12 @@ body.phase-play .trivia-timer-ring.critical span { animation: none; }
     font-size: clamp(1.25rem, 3.5vw, 2rem); line-height: 1.5;
     color: #e8e4ff; margin-bottom: 14px;
 }
+.result-picked {
+    font-size: clamp(1.15rem, 2.8vw, 1.65rem); line-height: 1.4;
+    color: #c8c4e8; margin-bottom: 8px; font-weight: 600;
+}
+.trivia-result.miss .result-picked { color: #ff99aa; }
+.trivia-result.ok .result-picked { color: var(--cyan); }
 .result-ans {
     font-size: clamp(1.2rem, 3vw, 1.75rem); color: var(--gold);
     margin-bottom: clamp(10px, 1.5vh, 16px); font-weight: 700;
@@ -2327,6 +2352,10 @@ body.phase-victory .minigame-screen {
     .dock-q { font-size: 0.58rem !important; }
     .dock-player { font-size: 0.58rem !important; max-width: 28vw !important; }
     .dock-lifeline-btn { font-size: 0.52rem !important; padding: 4px 8px !important; }
+    .dock-lives-wrap { gap: 4px !important; }
+    .hearts-count, .shields-count { font-size: 0.95rem !important; }
+    .heart-slot, .shield-slot { font-size: 1rem !important; }
+    .dock-lives-sep { font-size: 0.75rem !important; margin: 0 1px !important; }
 
     /* ── TRIVIA ── */
     .phase-play .trivia-screen {

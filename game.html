@@ -19,7 +19,7 @@
     })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="game.css?v=94">
+    <link rel="stylesheet" href="game.css?v=101">
 </head>
 <body class="phase-boot">
     <div id="gameLayer">
@@ -52,13 +52,13 @@
             <div class="login-shell">
                 <p class="login-badge">👤 PLAYER LOGIN</p>
                 <h1 class="login-title">WHO'S PLAYING?</h1>
-                <p class="login-sub">Everyone gets their own saved progress on this device</p>
+                <p class="login-sub">Create a profile with a 4-digit PIN — required every time you play</p>
                 <div id="playerList" class="player-list"></div>
                 <div class="login-create">
                     <h3 class="login-create-title">NEW PLAYER</h3>
                     <div class="login-form">
                         <input type="text" id="newPlayerName" class="login-input" maxlength="18" placeholder="Your name…" autocomplete="off" />
-                        <input type="password" id="newPlayerPin" class="login-input login-pin" maxlength="4" inputmode="numeric" placeholder="PIN (optional, 4 digits)" autocomplete="new-password" />
+                        <input type="password" id="newPlayerPin" class="login-input login-pin" maxlength="4" inputmode="numeric" placeholder="4-digit PIN (required)" autocomplete="new-password" required />
                         <button type="button" class="arcade-btn arcade-btn-lg" id="btnCreatePlayer">CREATE & PLAY</button>
                     </div>
                 </div>
@@ -71,7 +71,7 @@
             <div class="modal-panel delete-panel">
                 <h2>DELETE ACCOUNT</h2>
                 <p id="deleteAccountMsg" class="delete-msg">This cannot be undone.</p>
-                <input type="password" id="deleteConfirmPin" class="login-input login-pin hidden" maxlength="4" inputmode="numeric" placeholder="Enter PIN to confirm" autocomplete="off" />
+                <input type="password" id="deleteConfirmPin" class="login-input login-pin" maxlength="4" inputmode="numeric" placeholder="Enter PIN to confirm" autocomplete="off" />
                 <p id="deleteError" class="login-error hidden"></p>
                 <div class="pin-actions">
                     <button type="button" class="arcade-btn delete-btn" id="btnDeleteConfirm">DELETE FOREVER</button>
@@ -211,10 +211,10 @@
                     <div class="help-card">
                         <h3 class="help-card-title">⚡ 50/50 LIFELINE</h3>
                         <ul class="help-card-list">
-                            <li>Need <strong>2+ hearts</strong> — tap <strong>USE LIFELINE</strong> at the top</li>
-                            <li>Costs <strong>1 ♥</strong> · removes <strong>2 wrong answers</strong></li>
-                            <li>You get <strong>10 seconds</strong> to pick from the 2 left</li>
-                            <li>One lifeline per question</li>
+                            <li>Get <strong>3 lifeline shields</strong> 🛡 each level (Easy, Medium, Hard)</li>
+                            <li>Tap <strong>USE LIFELINE</strong> — costs <strong>1 shield</strong> and <strong>−10 points</strong> (not a heart)</li>
+                            <li>Removes <strong>2 wrong answers</strong> · <strong>10 seconds</strong> to pick</li>
+                            <li>One lifeline per question · shields <strong>reset at each new level</strong></li>
                         </ul>
                     </div>
                     <div class="help-card">
@@ -303,8 +303,12 @@
                     <div class="dock-lives-wrap">
                         <div id="heartsDisplay" class="hearts-display"></div>
                         <span id="heartsCount" class="hearts-count" aria-hidden="true">×3</span>
+                        <span class="dock-lives-sep" aria-hidden="true">|</span>
+                        <div id="shieldsDisplay" class="shields-display" title="Lifeline shields"></div>
+                        <span id="shieldsCount" class="shields-count" aria-hidden="true">×3</span>
                     </div>
                     <span id="hudHearts" class="sr-only">hearts</span>
+                    <span id="hudShields" class="sr-only">lifeline shields</span>
                 </div>
             </div>
             <div class="dock-seg dock-meta dock-right">
@@ -313,8 +317,8 @@
                 <span id="hudStreak" class="dock-time">STREAK ×0</span>
             </div>
             <div class="dock-track"><div id="journeyProgress" class="journey-fill"></div></div>
-            <button type="button" id="btnUseLifeline" class="dock-lifeline-btn hidden" title="Costs 1 heart — removes 2 wrong answers, 10 seconds to guess">
-                ⚡ USE LIFELINE — 50/50 · −1 ♥ · 10 SEC
+            <button type="button" id="btnUseLifeline" class="dock-lifeline-btn hidden" title="Uses 1 lifeline shield — removes 2 wrong answers, costs 10 points, 10 seconds to guess">
+                ⚡ USE LIFELINE — 50/50 · −1 🛡 · −10 PTS · 10 SEC
             </button>
         </header>
         <div id="playHud" class="play-hud hidden" aria-hidden="true"></div>
@@ -363,6 +367,7 @@
                 <p id="resultTotalScore" class="result-total-score">Total: 0 pts</p>
                 <p id="resultStreak" class="result-streak hidden">STREAK ×3</p>
                 <p id="resultExplain" class="result-explain"></p>
+                <p id="resultPickedAnswer" class="result-picked hidden"></p>
                 <p id="resultAnswer" class="result-ans"></p>
                 <p id="resultLifelineHint" class="result-lifeline-hint hidden">Bonus challenge — win for +1 ♥</p>
                 <div class="result-actions">
@@ -424,17 +429,17 @@
 
     <!-- [JUDGE] SCRIPTS — Load order matters: data first, main.js last starts the game -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="data.js?v=68"></script>
+    <script src="data.js?v=70"></script>
     <script src="answerImageData.js?v=65"></script>
-    <script src="firebase-config.js?v=1"></script>
-    <script src="globalLeaderboard.js?v=1"></script>
-    <script src="profiles.js?v=50"></script>
+    <script src="firebase-config.js?v=2"></script>
+    <script src="globalLeaderboard.js?v=2"></script>
+    <script src="profiles.js?v=51"></script>
     <script src="cueArt.js?v=62"></script>
     <script src="fx.js?v=32"></script>
-    <script src="minigames.js?v=67"></script>
+    <script src="minigames.js?v=69"></script>
     <script src="worlds.js?v=32"></script>
     <script src="engine.js?v=45"></script>
-    <script src="ui.js?v=68"></script>
-    <script src="main.js?v=63"></script>
+    <script src="ui.js?v=72"></script>
+    <script src="main.js?v=66"></script>
 </body>
 </html>

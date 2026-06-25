@@ -333,6 +333,7 @@ AN.UI.showPlay = () => {
     AN.UI.hide('victoryScreen');
     AN.UI.ensurePlayShell();
     AN.UI.updateHearts();
+    AN.UI.updateShields();
     AN.UI.updatePlayHud();
 };
 
@@ -371,6 +372,33 @@ AN.UI.updateHearts = (lostIndex = -1) => {
         for (let i = 0; i < slots; i++) s += i < h ? '♥' : '♡';
         hud.textContent = s + ' (' + h + ' lives)';
         hud.title = h + ' / ' + AN.MAX_HEARTS + ' hearts';
+    }
+};
+
+AN.UI.updateShields = (lostIndex = -1) => {
+    if (!AN.run) return;
+    const s = Math.max(0, Number(AN.run.shields) || 0);
+    const max = AN.START_LIFELINE_SHIELDS;
+    const display = AN.UI.$('shieldsDisplay');
+    if (display) {
+        display.innerHTML = '';
+        for (let i = 0; i < max; i++) {
+            const span = document.createElement('span');
+            const full = i < s;
+            span.className = 'shield-slot' + (full ? ' full' : ' empty');
+            if (!full && lostIndex === i) span.classList.add('shield-lost');
+            span.textContent = full ? '🛡' : '◌';
+            display.appendChild(span);
+        }
+    }
+    const countEl = AN.UI.$('shieldsCount');
+    if (countEl) countEl.textContent = '×' + s;
+    const hud = AN.UI.$('hudShields');
+    if (hud) {
+        let t = '';
+        for (let i = 0; i < max; i++) t += i < s ? '🛡' : '◌';
+        hud.textContent = t + ' (' + s + ' lifeline shields)';
+        hud.title = s + ' / ' + max + ' lifeline shields';
     }
 };
 
@@ -415,7 +443,7 @@ AN.UI.updateLifelineBtn = () => {
         && r.phase === 'play'
         && r.playSub === 'trivia'
         && !r._resolving
-        && r.hearts > 1
+        && r.shields > 0
         && !r.lifelineUsedThisQuestion);
     btn?.classList.toggle('hidden', !show);
     if (show) btn.disabled = false;
@@ -580,8 +608,23 @@ AN.UI.showTriviaResult = (ok, q, pick, pts, luckySave = false, levelUp = null) =
     } else {
         AN.UI.$('resultExplain').textContent = q.explanation;
     }
+
+    const pickedEl = AN.UI.$('resultPickedAnswer');
+    if (pickedEl) {
+        if (pick >= 0 && q.answers[pick] != null) {
+            pickedEl.textContent =
+                'Answer clicked: ' + AN.ANSWER_LABELS[pick] + '. ' + q.answers[pick];
+            pickedEl.classList.remove('hidden');
+        } else if (!ok) {
+            pickedEl.textContent = "Answer clicked: (none — time ran out)";
+            pickedEl.classList.remove('hidden');
+        } else {
+            pickedEl.textContent = '';
+            pickedEl.classList.add('hidden');
+        }
+    }
     AN.UI.$('resultAnswer').textContent =
-        'Correct: ' + AN.ANSWER_LABELS[q.correctIndex] + '. ' + q.answers[q.correctIndex];
+        'Correct answer: ' + AN.ANSWER_LABELS[q.correctIndex] + '. ' + q.answers[q.correctIndex];
 
     const streakEl = AN.UI.$('resultStreak');
     if (AN.run.streak > 1) {
@@ -658,6 +701,7 @@ AN.UI.updatePlayHud = () => {
     const prog = AN.UI.$('journeyProgress');
     if (prog && r.questions) prog.style.width = ((r.stopIndex / r.questions.length) * 100) + '%';
     AN.UI.updateHearts();
+    AN.UI.updateShields();
     AN.UI.updateLifelineBtn();
     AN.UI.syncDockHeight?.();
 };

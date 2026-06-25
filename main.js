@@ -177,6 +177,7 @@ AN.Main = {
             AN.UI.showWarp(tl, () => {
                 AN.UI.showPlay();
                 AN.UI.updateHearts();
+                AN.UI.updateShields();
                 AN.Main.beginStop(0);
             });
         };
@@ -215,6 +216,7 @@ AN.Main = {
         r.time = 0;
         r.correct = 0;
         r.hearts = AN.START_HEARTS;
+        r.shields = AN.START_LIFELINE_SHIELDS;
         r.phase = 'play';
         r.playSub = '';
         r.paused = true;
@@ -244,6 +246,16 @@ AN.Main = {
         const lostAt = r.hearts - 1;
         r.hearts = lostAt;
         AN.UI.updateHearts(lostAt);
+        return true;
+    },
+
+    useLifelineShield() {
+        const r = AN.run;
+        if (!r || r.shields <= 0) return false;
+        r.shields--;
+        r.score = Math.max(0, (r.score || 0) - AN.LIFELINE_SHIELD_COST);
+        AN.UI.updateShields(r.shields);
+        AN.UI.updatePlayHud();
         return true;
     },
 
@@ -282,7 +294,7 @@ AN.Main = {
 
     useLifeline5050() {
         const r = AN.run;
-        if (r.playSub !== 'trivia' || r._resolving || r.hearts <= 1 || r.lifelineUsedThisQuestion) return;
+        if (r.playSub !== 'trivia' || r._resolving || r.shields <= 0 || r.lifelineUsedThisQuestion) return;
         const q = r.currentQ;
         if (!q) return;
 
@@ -299,7 +311,7 @@ AN.Main = {
         }
         wrong.slice(0, 2).forEach(i => r.eliminated.add(i));
 
-        AN.Main.loseHeart();
+        AN.Main.useLifelineShield();
         r.lifelineUsedThisQuestion = true;
         r.lifeline5050Active = true;
         AN.UI.refreshTriviaCards(q, r.eliminated);
@@ -308,7 +320,7 @@ AN.Main = {
         AN.Main.startTriviaTimer(AN.LIFELINE_GUESS_TIME);
         r.save.totalLifelines = (r.save.totalLifelines || 0) + 1;
         AN.Main.unlockAch('lifeline5050');
-        AN.UI.toast('50/50 — −1 ♥ · 2 wrong answers removed · 10 seconds to choose!', true);
+        AN.UI.toast('50/50 — −1 🛡 · −10 pts · 2 wrong answers removed · 10 seconds!', true);
     },
 
     retryQuiz() {
@@ -366,6 +378,12 @@ AN.Main = {
         r.eliminated = AN.Main.getEliminatedIndices(q);
 
         const tier = (q.difficulty || 'easy').toLowerCase();
+        const prevQ = index > 0 ? r.questions[index - 1] : null;
+        const prevTier = prevQ ? (prevQ.difficulty || 'easy').toLowerCase() : null;
+        if (prevTier !== tier) {
+            r.shields = AN.START_LIFELINE_SHIELDS;
+            AN.UI.updateShields();
+        }
         if (!r.levelStats) r.levelStats = AN.Main.freshLevelStats();
         if (r.levelStats[tier]) r.levelStats[tier].asked++;
 
@@ -602,6 +620,7 @@ AN.Main = {
             time: r.time,
             correct: r.correct,
             hearts: r.hearts,
+            shields: r.shields,
             timelineId: r.timelineId,
             _runRangeLabel: r._runRangeLabel,
             playSub: r.playSub,
@@ -646,6 +665,7 @@ AN.Main = {
         r.time = snap.time ?? 0;
         r.correct = snap.correct ?? 0;
         r.hearts = snap.hearts;
+        r.shields = typeof snap.shields === 'number' ? snap.shields : AN.START_LIFELINE_SHIELDS;
         r.timelineId = snap.timelineId || AN.JOURNEY_ID;
         r._runRangeLabel = snap._runRangeLabel || '';
         r.phase = 'play';
@@ -665,6 +685,7 @@ AN.Main = {
 
         AN.UI.showPlay();
         AN.UI.updateHearts();
+        AN.UI.updateShields();
         AN.UI.updatePlayHud();
         AN.Engine.clear();
 
