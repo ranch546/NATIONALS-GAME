@@ -1,4 +1,4 @@
-/* build: 96 — deep phone layout (laptop scale unchanged) */
+/* build: 97 — victory full-screen center fix */
 /*
  * ═══════════════════════════════════════════════════════════════════════════
  * game.css — ALL VISUAL STYLES (Presentation / Judge Guide)
@@ -1127,10 +1127,13 @@ body.phase-play .trivia-timer-ring.critical span { animation: none; }
 
 /* VICTORY / DEFEAT — FULL SCREEN */
 .view-victory, .view-defeat {
-    position: fixed; inset: 0; width: 100vw; height: 100vh;
+    position: absolute; inset: 0; width: 100%; height: 100%;
     z-index: 30; text-align: center; padding: 0; margin: 0;
+    display: flex; flex-direction: column;
     justify-content: stretch; align-items: stretch;
     background: #05020c;
+    overflow-y: auto;
+    box-sizing: border-box;
 }
 .victory-bg {
     position: absolute; inset: 0;
@@ -1995,6 +1998,75 @@ body.phase-play .trivia-timer-ring.critical span { animation: none; }
     flex-shrink: 0;
 }
 
+/* Victory — own full screen inside scaled #uiFit (fixes left-shift / cut-off) */
+#uiFit .view-victory:not(.hidden),
+#uiFit .view-defeat:not(.hidden) {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 50 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+}
+#uiFit .view-victory .victory-bg {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: none;
+}
+#uiFit .view-victory .victory-burst {
+    position: absolute !important;
+    left: 50% !important;
+    top: 38% !important;
+    transform: translate(-50%, -50%) !important;
+    pointer-events: none;
+}
+#uiFit .view-victory .victory-hub-corner {
+    position: absolute !important;
+    top: clamp(12px, 2vh, 20px) !important;
+    right: clamp(12px, 2vw, 24px) !important;
+    left: auto !important;
+    z-index: 4 !important;
+}
+#uiFit .victory-shell {
+    position: relative !important;
+    z-index: 2 !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 auto !important;
+    min-height: 100% !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+}
+#uiFit .victory-stats,
+#uiFit .loot-reveal,
+#uiFit .victory-actions {
+    width: min(820px, 92%) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+body.phase-victory #statusDock,
+body.phase-victory #playBackdrop,
+body.phase-victory .trivia-screen,
+body.phase-victory .trivia-result,
+body.phase-victory .minigame-screen {
+    display: none !important;
+}
+
 /* ═══ PHONE ONLY (≤768px) — compact UI + scroll every screen; MacBook untouched ═══ */
 @media (max-width: 768px) {
     :root {
@@ -2100,6 +2172,23 @@ body.phase-play .trivia-timer-ring.critical span { animation: none; }
         padding-top: calc(var(--dock-h) + 4px) !important;
         padding-left: 0 !important;
         padding-right: 0 !important;
+    }
+
+    #uiFit .view-victory:not(.hidden),
+    #uiFit .view-defeat:not(.hidden) {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 100dvh !important;
+        z-index: 50 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        overflow-y: auto !important;
+        padding: 10px !important;
+        padding-bottom: max(24px, env(safe-area-inset-bottom)) !important;
     }
 
     #uiFit .view-modal:not(.hidden) { z-index: 40; padding-top: 8px !important; }

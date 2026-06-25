@@ -663,6 +663,7 @@ AN.UI.updatePlayHud = () => {
 };
 
 AN.UI.victory = (stats, loot) => {
+    document.body.className = 'phase-victory';
     AN.UI.hidePlay();
     AN.UI.show('victoryScreen');
     AN.UI.$('victoryStats').innerHTML = stats;
