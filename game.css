@@ -1,4 +1,4 @@
-/* build: 98 — memory match click fix */
+/* build: 99 — pac-man mobile controls */
 /*
  * ═══════════════════════════════════════════════════════════════════════════
  * game.css — ALL VISUAL STYLES (Presentation / Judge Guide)
@@ -1384,7 +1384,34 @@ body.phase-play .trivia-timer-ring.critical span { animation: none; }
 }
 #mgSprintFill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--pink), var(--gold)); transition: width 0.05s; }
 .mg-sprint-hint { font-family: var(--font-h); font-size: clamp(1rem, 2.2vw, 1.35rem); color: var(--gold); }
-.mg-canvas { border: 2px solid var(--cyan); border-radius: 10px; background: #0a0820; width: min(640px, 92vw) !important; height: auto !important; }
+.mg-canvas { border: 2px solid var(--cyan); border-radius: 10px; background: #0a0820; width: min(640px, 92vw) !important; height: auto !important; touch-action: none; }
+.mg-pac-wrap { width: 100%; max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.mg-pac-hint { font-size: clamp(0.7rem, 2.8vw, 0.95rem); color: #9ab; margin: 0; }
+.mg-pac-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 52px);
+    grid-template-rows: repeat(2, 52px);
+    gap: 6px;
+    justify-content: center;
+    margin-top: 4px;
+    touch-action: manipulation;
+}
+.mg-pac-up { grid-column: 2; grid-row: 1; }
+.mg-pac-left { grid-column: 1; grid-row: 2; }
+.mg-pac-right { grid-column: 3; grid-row: 2; }
+.mg-pac-down { grid-column: 2; grid-row: 2; }
+.mg-pac-btn {
+    width: 52px; height: 52px; border-radius: 12px;
+    border: 2px solid var(--cyan); background: #1a1030; color: var(--gold);
+    font-size: 1.25rem; font-family: var(--font-h); cursor: pointer;
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+.mg-pac-btn.active, .mg-pac-btn:active {
+    background: #2a1848; color: var(--cyan);
+    box-shadow: 0 0 16px rgba(0,245,255,0.35);
+    transform: scale(0.96);
+}
 .mg-score-txt { font-family: var(--font-h); font-size: clamp(1rem, 2.2vw, 1.35rem); color: var(--gold); }
 .mg-pat-msg { font-size: clamp(1rem, 2vw, 1.25rem); color: #aab; }
 
@@ -2427,6 +2454,9 @@ body.phase-victory .minigame-screen {
     }
     .mg-title { font-size: 1rem !important; }
     .mg-canvas { width: 100% !important; max-width: 320px !important; height: auto !important; }
+    .mg-pac-pad { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 46px); gap: 5px; }
+    .mg-pac-btn { width: 46px; height: 46px; font-size: 1rem; }
+    .mg-pac-hint { font-size: 0.65rem !important; }
 
     /* ── WARP / LEVEL ADVANCE ── */
     .warp-year { font-size: 1.6rem !important; }

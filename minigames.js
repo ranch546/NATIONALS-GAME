@@ -314,52 +314,177 @@ AN.Minigames.sprint = (cb) => {
     AN.Minigames._cleanup = () => { removeEventListener('keydown', keyFn); area.removeEventListener('click', clickFn); };
 };
 
-/* 8. Pac-Man Chase — collect pellets */
+/* 8. Pac-Man Chase — collect pellets (keyboard + mobile D-pad / swipe) */
 AN.Minigames.pacman = (cb) => {
     const area = AN.Minigames._area();
-    area.innerHTML = '<canvas id="mgPac" width="480" height="360" class="mg-canvas"></canvas><p class="mg-score-txt">Pellets: <span id="mgPel">0</span>/10</p>';
+    if (!area) { cb(false); return; }
+
+    area.innerHTML = `
+        <div class="mg-pac-wrap">
+            <canvas id="mgPac" class="mg-canvas"></canvas>
+            <p class="mg-score-txt">Pellets: <span id="mgPel">0</span>/10</p>
+            <p class="mg-pac-hint">Tap arrows or swipe on the maze</p>
+            <div class="mg-pac-pad" id="mgPacPad" aria-label="Move controls">
+                <button type="button" class="mg-pac-btn mg-pac-up" data-dir="up" aria-label="Up">▲</button>
+                <button type="button" class="mg-pac-btn mg-pac-left" data-dir="left" aria-label="Left">◀</button>
+                <button type="button" class="mg-pac-btn mg-pac-right" data-dir="right" aria-label="Right">▶</button>
+                <button type="button" class="mg-pac-btn mg-pac-down" data-dir="down" aria-label="Down">▼</button>
+            </div>
+        </div>`;
+
     const c = document.getElementById('mgPac');
+    const pad = document.getElementById('mgPacPad');
+    const pelEl = document.getElementById('mgPel');
+    if (!c || !pad) { cb(false); return; }
+
     const ctx = c.getContext('2d');
-    const W = c.width;
-    const H = c.height;
-    const px = W * 0.5;
-    const py = H * 0.5;
+    const maxW = Math.min(400, Math.max(260, (area.clientWidth || 320) - 16));
+    const W = maxW;
+    const H = Math.round(maxW * 0.75);
+    c.width = W;
+    c.height = H;
+
     let pellets = Array.from({ length: 10 }, () => ({
-        x: 24 + Math.random() * (W - 48), y: 24 + Math.random() * (H - 48), got: false
+        x: 20 + Math.random() * (W - 40),
+        y: 20 + Math.random() * (H - 40),
+        got: false
     }));
-    let got = 0, done = false;
-    const finish = w => { if (done) return; done = true; cancelAnimationFrame(raf); AN.Minigames._done(w, cb); };
+
+    let got = 0;
+    let done = false;
+    let raf = 0;
     const keys = {};
-    const kd = e => { keys[e.key] = true; if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(e.key)) e.preventDefault(); };
-    const ku = e => { keys[e.key] = false; };
-    addEventListener('keydown', kd); addEventListener('keyup', ku);
-    let pos = { x: px, y: py };
+    const move = { up: false, down: false, left: false, right: false };
+    let touchOrigin = null;
+
+    const finish = (w) => {
+        if (done) return;
+        done = true;
+        cancelAnimationFrame(raf);
+        AN.Minigames._done(w, cb);
+    };
+
+    const kd = (e) => {
+        keys[e.key] = true;
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(e.key)) {
+            e.preventDefault();
+        }
+    };
+    const ku = (e) => { keys[e.key] = false; };
+
+    const setMove = (dir, on) => {
+        if (dir && Object.prototype.hasOwnProperty.call(move, dir)) move[dir] = on;
+    };
+
+    const bindDirBtn = (btn) => {
+        const dir = btn.dataset.dir;
+        const press = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setMove(dir, true);
+            btn.classList.add('active');
+        };
+        const release = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setMove(dir, false);
+            btn.classList.remove('active');
+        };
+        btn.addEventListener('mousedown', press);
+        btn.addEventListener('mouseup', release);
+        btn.addEventListener('mouseleave', release);
+        btn.addEventListener('touchstart', press, { passive: false });
+        btn.addEventListener('touchend', release, { passive: false });
+        btn.addEventListener('touchcancel', release, { passive: false });
+    };
+
+    pad.querySelectorAll('.mg-pac-btn').forEach(bindDirBtn);
+
+    const onTouchStart = (e) => {
+        if (e.touches.length !== 1) return;
+        touchOrigin = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    };
+    const onTouchMove = (e) => {
+        if (!touchOrigin || e.touches.length !== 1) return;
+        const dx = e.touches[0].clientX - touchOrigin.x;
+        const dy = e.touches[0].clientY - touchOrigin.y;
+        const t = 10;
+        move.left = dx < -t;
+        move.right = dx > t;
+        move.up = dy < -t;
+        move.down = dy > t;
+        if (Math.abs(dx) <= t) { move.left = false; move.right = false; }
+        if (Math.abs(dy) <= t) { move.up = false; move.down = false; }
+        e.preventDefault();
+    };
+    const onTouchEnd = () => {
+        touchOrigin = null;
+        move.up = move.down = move.left = move.right = false;
+    };
+
+    c.addEventListener('touchstart', onTouchStart, { passive: true });
+    c.addEventListener('touchmove', onTouchMove, { passive: false });
+    c.addEventListener('touchend', onTouchEnd);
+    c.addEventListener('touchcancel', onTouchEnd);
+
+    addEventListener('keydown', kd);
+    addEventListener('keyup', ku);
+
+    let pos = { x: W * 0.5, y: H * 0.5 };
     const loop = () => {
         if (done) return;
-        const sp = 3.5;
-        if (keys['ArrowLeft'] || keys['a']) pos.x -= sp;
-        if (keys['ArrowRight'] || keys['d']) pos.x += sp;
-        if (keys['ArrowUp'] || keys['w']) pos.y -= sp;
-        if (keys['ArrowDown'] || keys['s']) pos.y += sp;
+        const sp = 3.8;
+        if (keys.ArrowLeft || keys.a || move.left) pos.x -= sp;
+        if (keys.ArrowRight || keys.d || move.right) pos.x += sp;
+        if (keys.ArrowUp || keys.w || move.up) pos.y -= sp;
+        if (keys.ArrowDown || keys.s || move.down) pos.y += sp;
         pos.x = Math.max(14, Math.min(W - 14, pos.x));
         pos.y = Math.max(14, Math.min(H - 14, pos.y));
-        pellets.forEach(p => {
+
+        pellets.forEach((p) => {
             if (!p.got && Math.hypot(pos.x - p.x, pos.y - p.y) < 16) {
-                p.got = true; got++;
-                document.getElementById('mgPel').textContent = got;
+                p.got = true;
+                got++;
+                if (pelEl) pelEl.textContent = got;
                 if (got >= 10) finish(true);
             }
         });
-        ctx.fillStyle = '#0a0820'; ctx.fillRect(0, 0, W, H);
+
+        ctx.fillStyle = '#0a0820';
+        ctx.fillRect(0, 0, W, H);
         ctx.fillStyle = '#ffd60a';
-        pellets.forEach(p => { if (!p.got) { ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, Math.PI * 2); ctx.fill(); } });
+        pellets.forEach((p) => {
+            if (!p.got) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
         ctx.fillStyle = '#ffff00';
-        ctx.beginPath(); ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
+        ctx.fill();
+
         raf = requestAnimationFrame(loop);
     };
-    let raf = requestAnimationFrame(loop);
-    AN.Minigames._countdown(15, null, () => finish(got >= 10));
-    AN.Minigames._cleanup = () => { cancelAnimationFrame(raf); removeEventListener('keydown', kd); removeEventListener('keyup', ku); };
+
+    raf = requestAnimationFrame(loop);
+    AN.Minigames._countdown(18, null, () => finish(got >= 10));
+
+    const prevCleanup = AN.Minigames._cleanup;
+    AN.Minigames._cleanup = () => {
+        cancelAnimationFrame(raf);
+        removeEventListener('keydown', kd);
+        removeEventListener('keyup', ku);
+        c.removeEventListener('touchstart', onTouchStart);
+        c.removeEventListener('touchmove', onTouchMove);
+        c.removeEventListener('touchend', onTouchEnd);
+        c.removeEventListener('touchcancel', onTouchEnd);
+        pad.querySelectorAll('.mg-pac-btn').forEach((btn) => {
+            btn.replaceWith(btn.cloneNode(true));
+        });
+        if (prevCleanup) prevCleanup();
+    };
 };
 
 /* 9. Pattern Builder */
