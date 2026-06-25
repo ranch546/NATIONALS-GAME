@@ -1,4 +1,4 @@
-/* build: 97 — victory full-screen center fix */
+/* build: 98 — memory match click fix */
 /*
  * ═══════════════════════════════════════════════════════════════════════════
  * game.css — ALL VISUAL STYLES (Presentation / Judge Guide)
@@ -1364,10 +1364,13 @@ body.phase-play .trivia-timer-ring.critical span { animation: none; }
 .mg-card, .mg-hole, .mg-pad, .mg-pat-cell {
     aspect-ratio: 1; min-width: clamp(88px, 14vw, 130px); border-radius: 12px; border: 2px solid rgba(255,255,255,0.2);
     background: #1a1030; color: #fff; font-size: clamp(2rem, 4.5vw, 3rem); cursor: pointer; transition: transform 0.1s;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 .mg-card:hover, .mg-hole:hover, .mg-pad:hover, .mg-pat-cell:hover { transform: scale(1.05); }
 .mg-card.open { background: #2a1848; }
-.mg-card.gone { visibility: hidden; }
+.mg-card.gone { visibility: hidden; pointer-events: none; }
+.mg-card:disabled { opacity: 0.85; cursor: default; }
 .mg-hole.up { background: #2a1848; border-color: var(--gold); }
 .mg-pad.lit { filter: brightness(1.8); transform: scale(1.1); }
 .mg-pat-cell { min-width: clamp(72px, 12vw, 100px); }

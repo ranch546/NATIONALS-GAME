@@ -88,36 +88,103 @@ AN.Minigames.reaction = (cb) => {
     };
 };
 
-/* 2. Memory — find one pair */
+/* 2. Memory — find matching pair (4 cards, 2 identical) */
 AN.Minigames.memory = (cb) => {
     const icons = ['📼', '🕹️', '📻', '🏀'];
     const pair = icons[Math.floor(Math.random() * icons.length)];
-    const cards = [pair, pair, icons[(icons.indexOf(pair) + 1) % 4], icons[(icons.indexOf(pair) + 2) % 4]].sort(() => Math.random() - 0.5);
+    const others = icons.filter((x) => x !== pair);
+    const cards = [pair, pair, others[0], others[1]].sort(() => Math.random() - 0.5);
     const area = AN.Minigames._area();
+    if (!area) { cb(false); return; }
+
     area.innerHTML = '<div class="mg-memory">' + cards.map((c, i) =>
         `<button type="button" class="mg-card" data-i="${i}" data-v="${c}">?</button>`).join('') + '</div>';
-    let first = null, matched = false, done = false;
-    const finish = w => { if (done) return; done = true; AN.Minigames._done(w, cb); };
-    area.querySelectorAll('.mg-card').forEach(btn => {
-        btn.onclick = () => {
-            if (done || btn.classList.contains('open') || btn.classList.contains('gone')) return;
-            btn.classList.add('open');
-            btn.textContent = btn.dataset.v;
-            if (!first) { first = btn; return; }
-            if (first.dataset.v === btn.dataset.v) {
-                first.classList.add('gone'); btn.classList.add('gone');
-                matched = true; first = null;
-                finish(true);
-            } else {
-                setTimeout(() => {
-                    first.classList.remove('open'); first.textContent = '?';
-                    btn.classList.remove('open'); btn.textContent = '?';
-                    first = null;
-                }, 500);
-            }
-        };
+
+    const grid = area.querySelector('.mg-memory');
+    const buttons = () => grid.querySelectorAll('.mg-card');
+
+    let first = null;
+    let locked = false;
+    let matched = false;
+    let done = false;
+    let flipTimer = null;
+
+    const setLocked = (on) => {
+        locked = on;
+        buttons().forEach((b) => {
+            if (!b.classList.contains('gone')) b.disabled = on;
+        });
+    };
+
+    const closeCard = (btn) => {
+        if (!btn || btn.classList.contains('gone')) return;
+        btn.classList.remove('open');
+        btn.textContent = '?';
+        btn.disabled = false;
+    };
+
+    const openCard = (btn) => {
+        btn.classList.add('open');
+        btn.textContent = btn.dataset.v;
+    };
+
+    const finish = (w) => {
+        if (done) return;
+        done = true;
+        if (flipTimer) { clearTimeout(flipTimer); flipTimer = null; }
+        first = null;
+        locked = false;
+        buttons().forEach((b) => { b.onclick = null; b.disabled = true; });
+        AN.Minigames._done(w, cb);
+    };
+
+    const onCardClick = (btn) => {
+        if (done || locked) return;
+        if (!btn || btn.classList.contains('gone') || btn.classList.contains('open')) return;
+
+        openCard(btn);
+
+        if (!first) {
+            first = btn;
+            return;
+        }
+
+        if (btn === first) return;
+
+        setLocked(true);
+
+        if (first.dataset.v === btn.dataset.v) {
+            first.classList.add('gone');
+            btn.classList.add('gone');
+            first = null;
+            matched = true;
+            setLocked(false);
+            finish(true);
+            return;
+        }
+
+        const a = first;
+        const b = btn;
+        first = null;
+        flipTimer = setTimeout(() => {
+            flipTimer = null;
+            closeCard(a);
+            closeCard(b);
+            setLocked(false);
+        }, 650);
+    };
+
+    buttons().forEach((btn) => {
+        btn.onclick = () => onCardClick(btn);
     });
-    AN.Minigames._countdown(12, null, () => finish(matched));
+
+    AN.Minigames._countdown(15, null, () => finish(matched));
+    const prevCleanup = AN.Minigames._cleanup;
+    AN.Minigames._cleanup = () => {
+        if (flipTimer) clearTimeout(flipTimer);
+        buttons().forEach((b) => { b.onclick = null; });
+        if (prevCleanup) prevCleanup();
+    };
 };
 
 /* 3. Whack-a-Mole */
@@ -250,7 +317,7 @@ AN.Minigames.sprint = (cb) => {
 /* 8. Pac-Man Chase — collect pellets */
 AN.Minigames.pacman = (cb) => {
     const area = AN.Minigames._area();
-    area.innerHTML = '<canvas id="mgPac" width="320" height="240" class="mg-canvas"></canvas><p class="mg-score-txt">Pellets: <span id="mgPel">0</span>/10</p>';
+    area.innerHTML = '<canvas id="mgPac" width="480" height="360" class="mg-canvas"></canvas><p class="mg-score-txt">Pellets: <span id="mgPel">0</span>/10</p>';
     const c = document.getElementById('mgPac');
     const ctx = c.getContext('2d');
     const W = c.width;
