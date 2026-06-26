@@ -708,7 +708,7 @@ AN.UI.showTriviaResult = (ok, q, pick, pts, luckySave = false, levelUp = null) =
         if (ok) {
             mgBtn.disabled = false;
             mgBtn.classList.remove('hidden');
-            hint?.classList.remove('hidden');
+            hint?.classList.add('hidden');
         } else {
             mgBtn.disabled = true;
             mgBtn.classList.add('hidden');
