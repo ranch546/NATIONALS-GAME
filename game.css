@@ -2897,3 +2897,205 @@ body.is-phone .trivia-cards {
     .tc-text { font-size: 0.8rem !important; }
     .status-dock { max-width: 100vw !important; }
 }
+
+/* ── IMPACT REPORT (end-of-run learning summary) ── */
+.victory-impact, .result-impact {
+    width: min(820px, 92vw);
+    margin: 0 auto clamp(16px, 3vh, 24px);
+}
+.impact-report {
+    background: linear-gradient(135deg, rgba(0,245,255,0.08), rgba(255,43,214,0.08));
+    border: 2px solid rgba(255,213,74,0.45);
+    border-radius: 20px;
+    padding: clamp(18px, 3vh, 28px) clamp(20px, 4vw, 32px);
+    text-align: left;
+}
+.impact-report-compact {
+    padding: clamp(12px, 2vh, 18px) clamp(16px, 3vw, 22px);
+    margin-top: clamp(8px, 1.5vh, 14px);
+}
+.impact-lead {
+    font-size: clamp(1.35rem, 3.8vw, 2rem);
+    color: #fff;
+    margin: 0 0 10px;
+    font-weight: 700;
+}
+.impact-lead strong { color: var(--gold); }
+.impact-total {
+    font-size: clamp(1rem, 2.5vw, 1.35rem);
+    color: #aab;
+    margin: 0 0 14px;
+}
+.impact-learned-title {
+    font-family: var(--font-h);
+    font-size: clamp(1.1rem, 2.8vw, 1.5rem);
+    color: var(--cyan);
+    margin: 0 0 10px;
+    letter-spacing: 0.04em;
+}
+.impact-topics {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+.impact-topics li {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.impact-topic-icon { font-size: 1.35rem; }
+.impact-topic-name { font-weight: 700; color: #eef; font-size: clamp(1rem, 2.5vw, 1.25rem); }
+.impact-topic-count { color: var(--gold); font-weight: 700; font-size: clamp(0.9rem, 2.2vw, 1.1rem); }
+.impact-empty, .impact-tagline {
+    font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+    color: #99a;
+    margin: 8px 0 0;
+    line-height: 1.45;
+}
+
+/* ── ACCESSIBILITY SETTINGS ── */
+.a11y-grid {
+    display: grid;
+    gap: clamp(14px, 2vh, 20px);
+    margin-bottom: clamp(16px, 3vh, 24px);
+}
+@media (min-width: 720px) {
+    .a11y-grid { grid-template-columns: 1fr 1fr; }
+    .a11y-card-wide { grid-column: 1 / -1; }
+}
+.a11y-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(0,245,255,0.2);
+    border-radius: 16px;
+    padding: clamp(14px, 2.5vh, 20px);
+}
+.a11y-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    color: #dde;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.a11y-toggle:last-child { border-bottom: none; }
+.a11y-toggle input {
+    width: 22px;
+    height: 22px;
+    accent-color: var(--cyan);
+    flex-shrink: 0;
+}
+.a11y-volume-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    color: #ccd;
+}
+.a11y-volume {
+    flex: 1;
+    min-width: 140px;
+    accent-color: var(--cyan);
+    height: 8px;
+}
+.a11y-volume-label {
+    min-width: 3.5ch;
+    font-weight: 700;
+    color: var(--gold);
+}
+.a11y-mute-btn { width: 100%; margin-top: 4px; }
+.a11y-shortcut-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+}
+.a11y-shortcut-list li {
+    font-size: clamp(0.95rem, 2.4vw, 1.1rem);
+    color: #ccd;
+    line-height: 1.5;
+}
+.a11y-shortcut-list kbd, .kb-shortcut-bar kbd {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.45);
+    font-family: var(--font-h);
+    font-size: 0.9em;
+    color: var(--gold);
+    margin: 0 2px;
+}
+.kb-shortcut-bar {
+    text-align: center;
+    font-size: clamp(0.85rem, 2.2vw, 1rem);
+    color: #9ab;
+    margin: 10px 0 0;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.25);
+    border: 1px dashed rgba(0,245,255,0.25);
+}
+html.a11y-show-shortcuts .kb-shortcut-bar:not(.hidden) { display: block; }
+
+/* Bigger buttons mode */
+html.a11y-big-buttons .arcade-btn,
+html.a11y-big-buttons .hub-start-btn,
+html.a11y-big-buttons .hub-resume-btn,
+html.a11y-big-buttons .player-card,
+html.a11y-big-buttons .trivia-card,
+html.a11y-big-buttons .victory-actions .arcade-btn-lg {
+    font-size: 1.25em !important;
+    padding: 1.1em 1.4em !important;
+    min-height: 52px;
+}
+html.a11y-big-buttons .trivia-card .tc-text {
+    font-size: 1.05em !important;
+}
+html.a11y-big-buttons .a11y-toggle input {
+    width: 28px;
+    height: 28px;
+}
+
+/* Color-blind friendly palette (Okabe-Ito inspired) */
+html.a11y-colorblind {
+    --green: #0072B2;
+    --red: #E69F00;
+    --cyan: #56B4E9;
+    --pink: #CC79A7;
+    --gold: #F0E442;
+}
+html.a11y-colorblind .trivia-result.ok .result-title {
+    color: var(--green);
+    text-shadow: 0 0 40px rgba(0,114,178,0.5);
+}
+html.a11y-colorblind .trivia-result.ok .result-title::before {
+    content: '✓ ';
+}
+html.a11y-colorblind .trivia-result.miss .result-title {
+    color: var(--red);
+    text-shadow: 0 0 40px rgba(230,159,0,0.45);
+}
+html.a11y-colorblind .trivia-result.miss .result-title::before {
+    content: '✕ ';
+}
+html.a11y-colorblind .trivia-card.a .tc-letter::after { content: ' ■'; font-size: 0.65em; }
+html.a11y-colorblind .trivia-card.b .tc-letter::after { content: ' ▲'; font-size: 0.65em; }
+html.a11y-colorblind .trivia-card.c .tc-letter::after { content: ' ●'; font-size: 0.65em; }
+html.a11y-colorblind .trivia-card.d .tc-letter::after { content: ' ◆'; font-size: 0.65em; }
+html.a11y-colorblind .heart-full { filter: hue-rotate(180deg) saturate(1.2); }
+html.a11y-colorblind .xp-fill {
+    background: linear-gradient(90deg, var(--cyan), var(--green)) !important;
+}
+

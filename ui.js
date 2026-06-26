@@ -597,6 +597,7 @@ AN.UI.showTrivia = (q, index, total, timelineId, eliminated = new Set()) => {
 
     ts?.classList.add('view', 'trivia-screen');
     ts?.classList.remove('hidden');
+    AN.UI.syncKeyboardHints();
     requestAnimationFrame(() => {
         AN.UI.syncDockHeight();
         requestAnimationFrame(() => AN.UI.syncDockHeight());
@@ -738,12 +739,19 @@ AN.UI.showTriviaResult = (ok, q, pick, pts, luckySave = false, levelUp = null) =
         btnCont?.classList.add('hidden');
         btnRetry?.classList.remove('hidden');
         btnHub?.classList.remove('hidden');
+        AN.Main.recordRunLearning();
+        const impactEl = AN.UI.$('resultImpact');
+        if (impactEl) {
+            impactEl.innerHTML = AN.UI.buildImpactReport(AN.run, AN.run?.save, { compact: true });
+            impactEl.classList.remove('hidden');
+        }
         AN.run.playSub = gameOver ? 'gameover' : 'levelfail';
         if (gate) {
             AN.Main.clearRunTimers?.();
             AN.Main.clearPausedRun?.();
         }
     } else {
+        AN.UI.$('resultImpact')?.classList.add('hidden');
         btnCont?.classList.remove('hidden');
         btnRetry?.classList.add('hidden');
         btnHub?.classList.add('hidden');
@@ -800,10 +808,91 @@ AN.UI.updatePlayHud = () => {
     AN.UI.syncDockHeight?.();
 };
 
-AN.UI.victory = (stats, loot) => {
+AN.UI.buildImpactReport = (run, save, opts = {}) => {
+    const runN = run?.questionsAnswered || 0;
+    const totalN = save?.totalQuestionsAnswered || 0;
+    const topics = Object.entries(run?.topicsThisRun || {}).sort((a, b) => b[1] - a[1]);
+    const icons = AN.TOPIC_ICONS || {};
+    const compact = !!opts.compact;
+
+    let html = '<div class="impact-report' + (compact ? ' impact-report-compact' : '') + '">';
+    html += `<p class="impact-lead">You answered <strong>${runN}</strong> question${runN === 1 ? '' : 's'}.</p>`;
+    if (!compact && opts.lifetime && totalN > 0) {
+        html += `<p class="impact-total"><strong>${totalN.toLocaleString()}</strong> questions answered on this profile.</p>`;
+    }
+    if (topics.length) {
+        html += '<p class="impact-learned-title">You learned about:</p><ul class="impact-topics">';
+        topics.forEach(([name, count]) => {
+            const icon = icons[name] || '📚';
+            html += `<li><span class="impact-topic-icon" aria-hidden="true">${icon}</span>`
+                + `<span class="impact-topic-name">${AN.UI._esc(name)}</span>`
+                + `<span class="impact-topic-count">${count} question${count === 1 ? '' : 's'}</span></li>`;
+        });
+        html += '</ul>';
+    } else {
+        html += '<p class="impact-empty">Keep playing to explore Sports, Technology, and Historical Events from the 1980s.</p>';
+    }
+    if (!compact) {
+        html += '<p class="impact-tagline">Every question builds your 1980s knowledge — great job staying curious!</p>';
+    }
+    html += '</div>';
+    return html;
+};
+
+AN.UI.syncKeyboardHints = () => {
+    const bar = AN.UI.$('kbShortcutBar');
+    if (!bar) return;
+    const show = AN.A11y?.get?.().showShortcuts && AN.run?.playSub === 'trivia';
+    bar.classList.toggle('hidden', !show);
+};
+
+AN.UI.openA11yModal = () => {
+    AN.UI.syncA11yModal();
+    AN.UI.show('a11yModal');
+};
+
+AN.UI.syncA11yModal = () => {
+    const s = AN.A11y?.get?.() || {};
+    const big = AN.UI.$('a11yBigButtons');
+    const cb = AN.UI.$('a11yColorBlind');
+    const shortcuts = AN.UI.$('a11yShowShortcuts');
+    const vol = AN.UI.$('a11yVolume');
+    const volLabel = AN.UI.$('a11yVolumeLabel');
+    const muteBtn = AN.UI.$('btnA11yMute');
+    if (big) big.checked = !!s.bigButtons;
+    if (cb) cb.checked = !!s.colorBlind;
+    if (shortcuts) shortcuts.checked = s.showShortcuts !== false;
+    const pct = Math.round((s.volume ?? 0.7) * 100);
+    if (vol) vol.value = String(pct);
+    if (volLabel) volLabel.textContent = pct + '%';
+    if (muteBtn) {
+        muteBtn.textContent = s.muted ? '🔊 UNMUTE' : '🔇 MUTE';
+        muteBtn.setAttribute('aria-pressed', s.muted ? 'true' : 'false');
+    }
+};
+
+AN.UI.bindA11yModal = () => {
+    AN.UI.bind('btnA11yMute', () => AN.A11y.toggleMuted());
+    const big = AN.UI.$('a11yBigButtons');
+    const cb = AN.UI.$('a11yColorBlind');
+    const shortcuts = AN.UI.$('a11yShowShortcuts');
+    const vol = AN.UI.$('a11yVolume');
+    big?.addEventListener('change', () => AN.A11y.save({ bigButtons: big.checked }));
+    cb?.addEventListener('change', () => AN.A11y.save({ colorBlind: cb.checked }));
+    shortcuts?.addEventListener('change', () => AN.A11y.save({ showShortcuts: shortcuts.checked }));
+    vol?.addEventListener('input', () => {
+        const v = Math.max(0, Math.min(100, parseInt(vol.value, 10) || 0)) / 100;
+        AN.A11y.save({ volume: v, muted: false });
+        AN.FX?.beep?.(520, 0.04, 'sine', 0.05 * v);
+    });
+};
+
+AN.UI.victory = (stats, loot, impact) => {
     document.body.className = 'phase-victory';
     AN.UI.hidePlay();
     AN.UI.show('victoryScreen');
+    const impactEl = AN.UI.$('victoryImpact');
+    if (impactEl) impactEl.innerHTML = impact || '';
     AN.UI.$('victoryStats').innerHTML = stats;
     AN.UI.$('lootReveal').innerHTML = loot;
     AN.FX?.correct?.();

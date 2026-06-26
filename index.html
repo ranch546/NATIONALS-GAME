@@ -37,7 +37,7 @@
     })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="game.css?v=109">
+    <link rel="stylesheet" href="game.css?v=110">
 </head>
 <body class="phase-boot">
     <div id="gameLayer">
@@ -153,6 +153,7 @@
                     <button type="button" class="arcade-btn arcade-btn-ghost" id="btnLeaderboard">LEADERBOARD</button>
                     <button type="button" class="arcade-btn arcade-btn-ghost" id="btnAchievements">TROPHIES</button>
                     <button type="button" class="arcade-btn arcade-btn-ghost" id="btnHowPlay">HOW TO PLAY</button>
+                    <button type="button" class="arcade-btn arcade-btn-ghost" id="btnAccessibility">♿ ACCESSIBILITY</button>
                 </div>
                 <div class="hub-danger-zone">
                     <p class="danger-label">ACCOUNT</p>
@@ -259,6 +260,42 @@
                     </div>
                 </div>
                 <button type="button" class="arcade-btn arcade-btn-lg modal-landscape-btn" id="btnCloseHelp">GOT IT</button>
+            </div>
+        </section>
+
+        <!-- ACCESSIBILITY — device-wide comfort settings for judges & players -->
+        <section id="a11yModal" class="view view-modal view-modal-help hidden" role="dialog" aria-modal="true" aria-labelledby="a11yTitle">
+            <div class="modal-panel help-modal help-modal-fullscreen a11y-modal">
+                <div class="modal-landscape-head">
+                    <h2 id="a11yTitle">♿ ACCESSIBILITY</h2>
+                    <p class="modal-sub">Comfort settings saved on this device — bigger buttons, color-blind mode, sound, and keyboard help</p>
+                </div>
+                <div class="a11y-grid">
+                    <div class="a11y-card">
+                        <h3 class="help-card-title">DISPLAY & INPUT</h3>
+                        <label class="a11y-toggle"><input type="checkbox" id="a11yBigButtons"> Bigger buttons (easier to tap)</label>
+                        <label class="a11y-toggle"><input type="checkbox" id="a11yColorBlind"> Color-blind friendly mode (blue/orange + patterns)</label>
+                        <label class="a11y-toggle"><input type="checkbox" id="a11yShowShortcuts" checked> Show keyboard shortcut hints during quiz</label>
+                    </div>
+                    <div class="a11y-card">
+                        <h3 class="help-card-title">SOUND</h3>
+                        <div class="a11y-volume-row">
+                            <label for="a11yVolume">Volume</label>
+                            <input type="range" id="a11yVolume" class="a11y-volume" min="0" max="100" value="70" aria-valuemin="0" aria-valuemax="100">
+                            <span id="a11yVolumeLabel" class="a11y-volume-label">70%</span>
+                        </div>
+                        <button type="button" class="arcade-btn a11y-mute-btn" id="btnA11yMute" aria-pressed="false">🔇 MUTE</button>
+                    </div>
+                    <div class="a11y-card a11y-card-wide">
+                        <h3 class="help-card-title">⌨ KEYBOARD SHORTCUTS</h3>
+                        <ul class="a11y-shortcut-list">
+                            <li><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> — pick answer A–D during a question</li>
+                            <li><kbd>Enter</kbd> or <kbd>Space</kbd> — continue after a result screen</li>
+                            <li><kbd>Enter</kbd> on login — create account / confirm PIN</li>
+                        </ul>
+                    </div>
+                </div>
+                <button type="button" class="arcade-btn arcade-btn-lg modal-landscape-btn" id="btnCloseA11y">BACK</button>
             </div>
         </section>
 
@@ -375,6 +412,9 @@
                         <span class="tc-text">Answer D</span>
                     </button>
                 </div>
+                <p id="kbShortcutBar" class="kb-shortcut-bar hidden" aria-live="polite">
+                    Keyboard: press <kbd>1</kbd>–<kbd>4</kbd> to answer · <kbd>Enter</kbd> to continue
+                </p>
                 </div>
             </div>
         </section>
@@ -391,6 +431,7 @@
                 <p id="resultExplain" class="result-explain"></p>
                 <p id="resultPickedAnswer" class="result-picked hidden"></p>
                 <p id="resultAnswer" class="result-ans"></p>
+                <div id="resultImpact" class="result-impact hidden" aria-live="polite"></div>
                 <p id="resultLifelineHint" class="result-lifeline-hint hidden">Bonus challenge — win for +1 ♥</p>
                 <div class="result-actions">
                     <button type="button" class="arcade-btn arcade-btn-lifeline" id="btnLifelineGame">🎮 BONUS CHALLENGE — WIN +1 ♥</button>
@@ -424,6 +465,7 @@
             <button type="button" class="victory-hub-corner" id="btnVictoryHubTop">🏠 RETURN TO HUB</button>
             <div class="victory-shell">
                 <h2 id="victoryTitle" class="victory-title">DECADE COMPLETE!</h2>
+                <div id="victoryImpact" class="victory-impact" aria-live="polite"></div>
                 <div id="victoryStats" class="victory-stats"></div>
                 <div id="lootReveal" class="loot-reveal"></div>
                 <div class="victory-actions">
@@ -451,17 +493,18 @@
 
     <!-- [JUDGE] SCRIPTS — Load order matters: data first, main.js last starts the game -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="data.js?v=70"></script>
+    <script src="data.js?v=71"></script>
     <script src="answerImageData.js?v=65"></script>
+    <script src="accessibility.js?v=1"></script>
     <script src="firebase-config.js?v=3"></script>
     <script src="globalLeaderboard.js?v=4"></script>
     <script src="profiles.js?v=57"></script>
     <script src="cueArt.js?v=62"></script>
-    <script src="fx.js?v=32"></script>
+    <script src="fx.js?v=33"></script>
     <script src="minigames.js?v=69"></script>
     <script src="worlds.js?v=32"></script>
     <script src="engine.js?v=45"></script>
-    <script src="ui.js?v=81"></script>
-    <script src="main.js?v=72"></script>
+    <script src="ui.js?v=82"></script>
+    <script src="main.js?v=73"></script>
 </body>
 </html>

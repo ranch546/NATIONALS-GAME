@@ -9,7 +9,7 @@ window.AN = window.AN || {};
 AN.FX = {};
 
 let fxCtx, fxCanvas, particles = [];
-let audioCtx;
+let audioCtx, masterGain;
 
 AN.FX._particlesOn = false;
 
@@ -23,7 +23,14 @@ AN.FX.init = () => {
     fxCtx = fxCanvas?.getContext('2d');
     AN.FX.resize();
     window.addEventListener('resize', () => AN.FX.resize());
-    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) {}
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.connect(audioCtx.destination);
+        AN.FX._applyVolume();
+    } catch (_) {}
+    AN.A11y?.load?.();
+    AN.A11y?.apply?.();
     const resume = () => AN.FX.resumeAudio();
     document.addEventListener('click', resume, { once: true });
     document.addEventListener('keydown', resume, { once: true });
@@ -33,6 +40,18 @@ AN.FX.init = () => {
 AN.FX.resumeAudio = () => {
     if (audioCtx?.state === 'suspended') audioCtx.resume();
 };
+
+AN.FX._out = () => masterGain || audioCtx?.destination;
+
+AN.FX._applyVolume = () => {
+    if (!masterGain) return;
+    const s = AN.A11y?.get?.() || { volume: 0.7, muted: false };
+    masterGain.gain.value = s.muted ? 0 : Math.max(0, Math.min(1, Number(s.volume) || 0.7));
+};
+
+AN.FX.setVolume = (v) => AN.A11y?.save?.({ volume: Math.max(0, Math.min(1, Number(v) || 0)) });
+
+AN.FX.setMuted = (muted) => AN.A11y?.save?.({ muted: !!muted });
 
 AN.FX.resize = () => {
     if (!fxCanvas) return;
@@ -52,7 +71,7 @@ AN.FX.beep = (freq, dur, type = 'square', vol = 0.08) => {
     g.gain.setValueAtTime(vol, t0);
     g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
     o.connect(g);
-    g.connect(audioCtx.destination);
+    g.connect(AN.FX._out());
     o.start(t0);
     o.stop(t0 + dur);
 };
@@ -70,7 +89,7 @@ AN.FX.sweep = (f0, f1, dur, type = 'sawtooth', vol = 0.06) => {
     g.gain.setValueAtTime(vol, t0);
     g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
     o.connect(g);
-    g.connect(audioCtx.destination);
+    g.connect(AN.FX._out());
     o.start(t0);
     o.stop(t0 + dur);
 };
@@ -93,7 +112,7 @@ AN.FX.noiseBurst = (dur = 0.12, vol = 0.04) => {
     f.frequency.value = 1200;
     src.connect(f);
     f.connect(g);
-    g.connect(audioCtx.destination);
+    g.connect(AN.FX._out());
     src.start(t0);
 };
 

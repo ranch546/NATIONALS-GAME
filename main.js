@@ -87,6 +87,10 @@ AN.Main = {
         AN.UI.bind('btnCloseAchieve', () => AN.UI.hide('achieveScreen'));
         AN.UI.bind('btnHowPlay', () => AN.UI.show('helpModal'));
         AN.UI.bind('btnCloseHelp', () => AN.UI.hide('helpModal'));
+        AN.UI.bind('btnAccessibility', () => AN.UI.openA11yModal());
+        AN.UI.bind('btnCloseA11y', () => AN.UI.hide('a11yModal'));
+        AN.A11y.init();
+        AN.UI.bindA11yModal();
         AN.UI.bind('btnVictoryHub', () => AN.Main.toHub());
         AN.UI.bind('btnVictoryHubTop', () => AN.Main.toHub());
         AN.UI.bind('btnHubDuringPlay', () => AN.Main.toHub());
@@ -237,6 +241,9 @@ AN.Main = {
         r.triviaTimeLimit = null;
         r.lifelineUsedThisQuestion = false;
         r.lifeline5050Active = false;
+        r.questionsAnswered = 0;
+        r.topicsThisRun = {};
+        r._learningRecorded = false;
         r.levelStats = AN.Main.freshLevelStats();
     },
 
@@ -246,6 +253,27 @@ AN.Main = {
             medium: { asked: 0, correct: 0 },
             hard: { asked: 0, correct: 0 }
         };
+    },
+
+    recordTopicAnswer(q) {
+        const r = AN.run;
+        if (!r || !q) return;
+        const cat = q.category || '1980s Trivia';
+        if (!r.topicsThisRun) r.topicsThisRun = {};
+        r.topicsThisRun[cat] = (r.topicsThisRun[cat] || 0) + 1;
+        r.questionsAnswered = (r.questionsAnswered || 0) + 1;
+    },
+
+    recordRunLearning() {
+        const r = AN.run;
+        if (!r?.save || r._learningRecorded) return;
+        r._learningRecorded = true;
+        const n = r.questionsAnswered || 0;
+        r.save.totalQuestionsAnswered = (r.save.totalQuestionsAnswered || 0) + n;
+        const set = new Set(r.save.topicsExplored || []);
+        Object.keys(r.topicsThisRun || {}).forEach(t => set.add(t));
+        r.save.topicsExplored = [...set];
+        AN.persist(r.save);
     },
 
     loseHeart() {
@@ -417,6 +445,7 @@ AN.Main = {
 
         const q = r.currentQ;
         const pick = idx < 0 ? -1 : idx;
+        AN.Main.recordTopicAnswer(q);
         const ok = pick === q.correctIndex;
         let pts = 0;
         let luckySave = false;
@@ -573,9 +602,11 @@ AN.Main = {
         if (r.correct === r.questions.length) AN.Main.unlockAch('perfect_run');
         AN.Main.unlockAch('journey_clear');
         if (r.score >= 150) AN.Main.unlockAch('high_score');
+        AN.Main.recordRunLearning();
         AN.persist(r.save);
 
         const skillPct = Math.round((r.save.adaptiveSkill ?? 0.35) * 100);
+        const impact = AN.UI.buildImpactReport(r, r.save, { lifetime: true });
         const stats = `
             <div class="stat-line"><span>Quiz</span><span>${r._runRangeLabel || 'Time Travel'}</span></div>
             <div class="stat-line"><span>Score</span><span>${r.score.toLocaleString()}</span></div>
@@ -586,7 +617,7 @@ AN.Main = {
         const loot = `<div class="loot-item">+${tokenGain} run bonus 🪙</div><div class="loot-item">+30 🪙 per quiz level cleared</div><div class="loot-item">Next run continues through the question bank</div>`;
 
         setTimeout(() => {
-            AN.UI.victory(stats, loot);
+            AN.UI.victory(stats, loot, impact);
             r.phase = 'victory';
             r._ending = false;
         }, 300);

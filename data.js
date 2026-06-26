@@ -147,6 +147,12 @@ AN.ACHIEVEMENTS = [
 ];
 
 /* [JUDGE] UPGRADES — bought with coins earned from completing runs + level-ups */
+AN.TOPIC_ICONS = {
+    'Sports': '⚽',
+    'Technology': '💻',
+    'Historical Events': '📜'
+};
+
 AN.UPGRADES = [
     { id: 'coin_mult', name: 'Coin Multiplier', icon: '🪙', desc: '+25% tokens every run', max: 5, cost: 50 },
     { id: 'extra_time', name: 'Time Boost', icon: '⏱', desc: '+2 seconds per question', max: 5, cost: 60 },
@@ -157,7 +163,8 @@ AN.UPGRADES = [
 
 AN.defaultSave = () => ({
     xp: 0, tokens: 0,
-    journeys: 0, totalCorrect: 0, totalLifelines: 0, totalBonusWins: 0,
+    journeys: 0, totalCorrect: 0, totalQuestionsAnswered: 0, topicsExplored: [],
+    totalLifelines: 0, totalBonusWins: 0,
     bestScore: 0, bestStreak: 0,
     questionCursor: 0, adaptiveSkill: 0.35, seenQuestions: [],
     achievements: [], titles: ['rookie'],
@@ -192,6 +199,10 @@ AN.normalizeSave = (save) => {
     const validAch = new Set(AN.ACHIEVEMENTS.map(a => a.id));
     merged.achievements = Array.isArray(merged.achievements)
         ? merged.achievements.filter(id => validAch.has(id))
+        : [];
+    merged.totalQuestionsAnswered = Math.max(0, Math.floor(Number(merged.totalQuestionsAnswered) || 0));
+    merged.topicsExplored = Array.isArray(merged.topicsExplored)
+        ? merged.topicsExplored.filter(Boolean)
         : [];
     return merged;
 };
