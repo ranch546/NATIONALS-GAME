@@ -48,6 +48,7 @@ AN.Main = {
         });
 
         AN.UI.bind('btnCreatePlayer', () => AN.UI.createPlayer());
+        AN.UI.bind('btnLoginPlayer', () => AN.UI.loginPlayer());
         AN.UI.bind('btnPinConfirm', () => AN.UI.confirmPin());
         AN.UI.bind('btnPinCancel', () => {
             AN.UI.hide('pinModal');
@@ -63,6 +64,12 @@ AN.Main = {
             AN.UI._pendingDeleteId = null;
         });
 
+        AN.UI.$('loginUserId')?.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); AN.UI.loginPlayer(); }
+        });
+        AN.UI.$('loginPin')?.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); AN.UI.loginPlayer(); }
+        });
         AN.UI.$('newPlayerName')?.addEventListener('keydown', e => {
             if (e.key === 'Enter') { e.preventDefault(); AN.UI.createPlayer(); }
         });

@@ -31,6 +31,27 @@ AN.Profiles.isUserIdTaken = (userId) => {
     return AN.Profiles.list().some(p => p.name.toLowerCase() === id);
 };
 
+AN.Profiles.findByUserId = (userId) => {
+    const id = AN.Profiles.normalizeUserId(userId).toLowerCase();
+    if (!id) return null;
+    return AN.Profiles.list().find(p => p.name.toLowerCase() === id) || null;
+};
+
+AN.Profiles._pinHash = async (pin) => {
+    const pinNorm = AN.Profiles._normalizePin(pin);
+    if (!AN.Profiles._isValidPin(pinNorm)) return '';
+    const msg = 'journey1980s:' + pinNorm;
+    if (typeof crypto !== 'undefined' && crypto.subtle) {
+        try {
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        } catch (_) {}
+    }
+    let h = 5381;
+    for (let i = 0; i < pinNorm.length; i++) h = ((h << 5) + h) ^ pinNorm.charCodeAt(i);
+    return 'f' + (h >>> 0).toString(16);
+};
+
 AN.Profiles.storageOk = () => {
     if (AN.Profiles._storageOk != null) return AN.Profiles._storageOk;
     try {
@@ -144,6 +165,10 @@ AN.Profiles.syncUserIdsToCloud = async () => {
     for (const p of AN.Profiles.list()) {
         if (!p.globalId) continue;
         await AN.GlobalLB.reserveUserId(p.name, p.globalId);
+        if (AN.Profiles._hasValidPin(p)) {
+            const pinHash = await AN.Profiles._pinHash(p.pin);
+            if (pinHash) await AN.GlobalLB.syncPinHash(p.name, p.globalId, pinHash);
+        }
     }
 };
 
@@ -219,10 +244,14 @@ AN.Profiles.create = async (userId, pin = '') => {
         if (AN.GlobalLB?.isEnabled?.()) AN.GlobalLB.releaseUserId(trimmed, globalId);
         return { error: 'storage' };
     }
+    if (AN.GlobalLB?.isEnabled?.()) {
+        const pinHash = await AN.Profiles._pinHash(pinNorm);
+        if (pinHash) await AN.GlobalLB.syncPinHash(trimmed, globalId, pinHash);
+    }
     return { profile };
 };
 
-AN.Profiles.setPin = (id, pin) => {
+AN.Profiles.setPin = async (id, pin) => {
     const pinNorm = AN.Profiles._normalizePin(pin);
     if (!AN.Profiles._isValidPin(pinNorm)) return false;
     const reg = AN.Profiles._readRegistry();
@@ -230,6 +259,10 @@ AN.Profiles.setPin = (id, pin) => {
     if (!p) return false;
     p.pin = pinNorm;
     AN.Profiles._writeRegistry(reg);
+    if (AN.GlobalLB?.isEnabled?.() && p.globalId) {
+        const pinHash = await AN.Profiles._pinHash(pinNorm);
+        if (pinHash) await AN.GlobalLB.syncPinHash(p.name, p.globalId, pinHash);
+    }
     return true;
 };
 
@@ -243,6 +276,60 @@ AN.Profiles.checkPin = (id, pin) => {
 AN.Profiles.login = (id, pin) => {
     if (!AN.Profiles.checkPin(id, pin)) return false;
     return AN.Profiles.setActive(id);
+};
+
+AN.Profiles.loginByUserId = async (userId, pin) => {
+    const trimmed = AN.Profiles.normalizeUserId(userId);
+    const pinNorm = AN.Profiles._normalizePin(pin);
+    if (trimmed.length < 2) return { error: 'length' };
+    if (!AN.Profiles._isValidPin(pinNorm)) return { error: 'pin' };
+
+    const local = AN.Profiles.findByUserId(trimmed);
+    if (local) {
+        if (!AN.Profiles._hasValidPin(local)) {
+            return { error: 'needs_setup', profileId: local.id, userId: trimmed };
+        }
+        if (!AN.Profiles.checkPin(local.id, pinNorm)) return { error: 'wrong_pin' };
+        AN.Profiles.setActive(local.id);
+        return { profile: local };
+    }
+
+    if (!AN.GlobalLB?.isEnabled?.()) return { error: 'not_found' };
+
+    const entry = await AN.GlobalLB.fetchUsernameEntry(trimmed);
+    if (entry && entry.__error) return { error: 'network' };
+    if (!entry || !entry.globalId) return { error: 'not_found' };
+
+    const pinHash = await AN.Profiles._pinHash(pinNorm);
+    if (!entry.pinHash) {
+        return { error: 'pin_not_synced', userId: trimmed };
+    }
+    if (entry.pinHash !== pinHash) return { error: 'wrong_pin' };
+
+    if (!AN.Profiles.storageOk()) return { error: 'storage' };
+
+    const reg = AN.Profiles._readRegistry();
+    const id = 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    const profile = {
+        id,
+        name: trimmed,
+        pin: pinNorm,
+        globalId: entry.globalId,
+        createdAt: Date.now(),
+        lastPlayed: Date.now()
+    };
+    reg.profiles.push(profile);
+    reg.activeId = id;
+    if (!AN.Profiles._writeRegistry(reg)) return { error: 'storage' };
+    const saveJson = JSON.stringify(AN.defaultSave());
+    if (!AN.Profiles._setItem(AN.Profiles.saveKey(id), saveJson)) {
+        reg.profiles = reg.profiles.filter(p => p.id !== id);
+        reg.activeId = reg.profiles[0]?.id || null;
+        AN.Profiles._writeRegistry(reg);
+        return { error: 'storage' };
+    }
+    await AN.GlobalLB.reserveUserId(trimmed, entry.globalId);
+    return { profile, restored: true };
 };
 
 AN.Profiles.loadSave = () => {

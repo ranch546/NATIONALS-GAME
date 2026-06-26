@@ -37,7 +37,7 @@
     })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="game.css?v=110">
+    <link rel="stylesheet" href="game.css?v=111">
 </head>
 <body class="phase-boot">
     <div id="gameLayer">
@@ -69,17 +69,26 @@
         <section id="loginScreen" class="view view-login hidden">
             <div class="login-shell">
                 <p class="login-badge">👤 PLAYER LOGIN</p>
-                <h1 class="login-title">WHO'S PLAYING?</h1>
-                <p class="login-sub">Create an account with a User ID and 4-digit PIN — saved on this device</p>
-                <div id="playerList" class="player-list"></div>
+                <h1 class="login-title">SIGN IN</h1>
+                <div class="login-form-section">
+                    <h3 class="login-section-title">LOGIN</h3>
+                    <div class="login-form">
+                        <label class="login-field-label" for="loginUserId">User ID</label>
+                        <input type="text" id="loginUserId" class="login-input" maxlength="18" placeholder="Your User ID" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" />
+                        <label class="login-field-label" for="loginPin">PIN</label>
+                        <input type="password" id="loginPin" class="login-input login-pin" maxlength="4" inputmode="numeric" placeholder="4-digit PIN" autocomplete="current-password" />
+                        <button type="button" class="arcade-btn arcade-btn-lg" id="btnLoginPlayer">LOGIN</button>
+                    </div>
+                </div>
+                <div class="login-divider" aria-hidden="true"><span>or</span></div>
                 <div class="login-create">
-                    <h3 class="login-create-title">NEW ACCOUNT</h3>
+                    <h3 class="login-section-title">CREATE ACCOUNT</h3>
                     <div class="login-form">
                         <label class="login-field-label" for="newPlayerName">User ID</label>
-                        <input type="text" id="newPlayerName" class="login-input" maxlength="18" placeholder="Pick a User ID (2–18 chars)…" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" />
+                        <input type="text" id="newPlayerName" class="login-input" maxlength="18" placeholder="Pick a User ID (2–18 chars)…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
                         <label class="login-field-label" for="newPlayerPin">PIN</label>
-                        <input type="password" id="newPlayerPin" class="login-input login-pin" maxlength="4" inputmode="numeric" placeholder="4-digit PIN (required)" autocomplete="new-password" required />
-                        <button type="button" class="arcade-btn arcade-btn-lg" id="btnCreatePlayer">CREATE & PLAY</button>
+                        <input type="password" id="newPlayerPin" class="login-input login-pin" maxlength="4" inputmode="numeric" placeholder="Choose a 4-digit PIN" autocomplete="new-password" required />
+                        <button type="button" class="arcade-btn arcade-btn-lg arcade-btn-ghost" id="btnCreatePlayer">CREATE ACCOUNT</button>
                     </div>
                 </div>
                 <p id="loginError" class="login-error hidden"></p>
@@ -123,7 +132,7 @@
                 <h1 class="hub-brand">JOURNEY THROUGH THE 80s</h1>
                 <div class="hub-player-bar">
                     <span class="hub-playing-as">Playing as <strong id="hubPlayerName">—</strong></span>
-                    <button type="button" class="arcade-btn arcade-btn-ghost hub-switch-btn" id="btnSwitchPlayer">SWITCH PLAYER</button>
+                    <button type="button" class="arcade-btn arcade-btn-ghost hub-switch-btn" id="btnSwitchPlayer">SIGN OUT</button>
                 </div>
                 <header class="hub-header">
                     <div class="hub-rank">
@@ -158,7 +167,7 @@
                 <div class="hub-danger-zone">
                     <p class="danger-label">ACCOUNT</p>
                     <button type="button" class="danger-btn" id="btnDeleteMyAccount">🗑 DELETE MY ACCOUNT</button>
-                    <p class="danger-hint">Removes your profile and all saved progress from this device</p>
+                    <p class="danger-hint">Removes your account and all saved progress permanently</p>
                 </div>
             </div>
         </section>
@@ -268,7 +277,7 @@
             <div class="modal-panel help-modal help-modal-fullscreen a11y-modal">
                 <div class="modal-landscape-head">
                     <h2 id="a11yTitle">♿ ACCESSIBILITY</h2>
-                    <p class="modal-sub">Comfort settings saved on this device — bigger buttons, color-blind mode, sound, and keyboard help</p>
+                    <p class="modal-sub">Comfort settings — bigger buttons, color-blind mode, sound, and keyboard help</p>
                 </div>
                 <div class="a11y-grid">
                     <div class="a11y-card">
@@ -495,16 +504,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="data.js?v=71"></script>
     <script src="answerImageData.js?v=65"></script>
-    <script src="accessibility.js?v=1"></script>
+    <script src="accessibility.js?v=2"></script>
     <script src="firebase-config.js?v=3"></script>
-    <script src="globalLeaderboard.js?v=4"></script>
-    <script src="profiles.js?v=57"></script>
+    <script src="globalLeaderboard.js?v=5"></script>
+    <script src="profiles.js?v=58"></script>
     <script src="cueArt.js?v=62"></script>
-    <script src="fx.js?v=33"></script>
+    <script src="fx.js?v=34"></script>
     <script src="minigames.js?v=69"></script>
     <script src="worlds.js?v=32"></script>
     <script src="engine.js?v=45"></script>
-    <script src="ui.js?v=82"></script>
-    <script src="main.js?v=73"></script>
+    <script src="ui.js?v=84"></script>
+    <script src="main.js?v=74"></script>
 </body>
 </html>

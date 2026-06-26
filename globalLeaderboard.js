@@ -74,6 +74,25 @@ AN.GlobalLB.reserveUserId = async (userId, globalId) => {
     }
 };
 
+/** PATCH account meta (PIN hash) when we own this User ID */
+AN.GlobalLB.syncPinHash = async (userId, globalId, pinHash) => {
+    if (!AN.GlobalLB.isEnabled() || !globalId || !pinHash) return false;
+    const entry = await AN.GlobalLB.fetchUsernameEntry(userId);
+    if (!entry || entry.__error || entry.globalId !== globalId) return false;
+    const key = AN.GlobalLB.userIdKey(userId);
+    if (!key) return false;
+    try {
+        const res = await fetch(AN.GlobalLB._userBase() + '/' + encodeURIComponent(key) + '.json', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pinHash, updatedAt: Date.now() })
+        });
+        return res.ok;
+    } catch (_) {
+        return false;
+    }
+};
+
 /** Reserve User ID globally (one per name worldwide) */
 AN.GlobalLB.claimUserId = async (userId, globalId) => {
     const result = await AN.GlobalLB.reserveUserId(userId, globalId);

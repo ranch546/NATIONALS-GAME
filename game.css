@@ -433,6 +433,18 @@ body.phase-play .trivia-timer-ring.critical span { animation: none; }
     text-align: center; color: var(--gold); margin-bottom: 12px;
 }
 .login-sub { text-align: center; color: #99a; font-size: clamp(1.1rem, 2.5vw, 1.45rem); margin-bottom: 32px; line-height: 1.45; }
+.login-form-section { margin-bottom: 8px; }
+.login-section-title {
+    font-family: var(--font-h); font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+    color: var(--cyan); letter-spacing: 0.12em; margin: 0 0 14px; text-align: center;
+}
+.login-divider {
+    display: flex; align-items: center; gap: 14px; margin: 22px 0;
+    color: #667; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.15em;
+}
+.login-divider::before, .login-divider::after {
+    content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.12);
+}
 .player-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; max-height: 40vh; overflow-y: auto; }
 .player-card-wrap { display: flex; align-items: stretch; gap: 8px; }
 .player-card {
@@ -461,7 +473,7 @@ body.phase-play .trivia-timer-ring.critical span { animation: none; }
 }
 .player-delete-btn { font-size: clamp(0.7rem, 1.2vw, 0.85rem); padding: 0 18px; }
 .player-card.has-pin .player-card-play::after { content: ' 🔒'; }
-.login-create { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px; }
+.login-create { border-top: none; padding-top: 0; }
 .login-create-title {
     font-family: var(--font-h); font-size: 0.75rem; letter-spacing: 0.15em;
     color: var(--pink); text-align: center; margin-bottom: 14px;

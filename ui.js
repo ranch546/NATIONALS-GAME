@@ -74,17 +74,17 @@ AN.UI.showLogin = () => {
     AN.UI.hide('bootScreen');
     AN.UI.hidePlay();
     AN.UI.show('loginScreen');
-    AN.UI.renderPlayerList();
     AN.Profiles.syncUserIdsToCloud();
     const err = AN.UI.$('loginError');
     if (err) {
         err.classList.add('hidden');
         err.textContent = '';
         if (!AN.Profiles.storageOk()) {
-            err.textContent = '⚠️ Saves may not work on this browser — turn off Private Browsing and allow site storage.';
+            err.textContent = '⚠️ Could not save progress — turn off Private Browsing and allow site storage.';
             err.classList.remove('hidden');
         }
     }
+    setTimeout(() => AN.UI.$('loginUserId')?.focus(), 120);
 };
 
 AN.UI.renderPlayerList = () => {
@@ -202,8 +202,6 @@ AN.UI.confirmDeleteAccount = () => {
         AN.UI.hide('hubScreen');
         AN.UI.hidePlay();
         AN.UI.showLogin();
-    } else {
-        AN.UI.renderPlayerList();
     }
     AN.UI.toast('Account deleted', false);
 };
@@ -238,12 +236,13 @@ AN.UI.selectPlayer = (id) => {
     setTimeout(() => AN.UI.$('pinInput')?.focus(), 150);
 };
 
-AN.UI.confirmPin = () => {
+AN.UI.confirmPin = async () => {
     const id = AN.UI._pendingLoginId;
     const pin = AN.UI.$('pinInput')?.value || '';
     if (!id) return;
     if (AN.UI._pinMode === 'setup') {
-        if (!AN.Profiles.setPin(id, pin)) {
+        const ok = await AN.Profiles.setPin(id, pin);
+        if (!ok) {
             const pe = AN.UI.$('pinError');
             if (pe) { pe.textContent = 'PIN must be exactly 4 digits'; pe.classList.remove('hidden'); }
             return;
@@ -265,6 +264,52 @@ AN.UI.confirmPin = () => {
     AN.Main.loginAs(id);
 };
 
+AN.UI.loginPlayer = async () => {
+    const userId = AN.UI.$('loginUserId')?.value || '';
+    const pin = AN.UI.$('loginPin')?.value || '';
+    const err = AN.UI.$('loginError');
+    const btn = AN.UI.$('btnLoginPlayer');
+    if (btn) { btn.disabled = true; btn.textContent = 'LOGGING IN…'; }
+    const result = await AN.Profiles.loginByUserId(userId, pin);
+    if (btn) { btn.disabled = false; btn.textContent = 'LOGIN'; }
+    if (result.error) {
+        if (err) {
+            if (result.error === 'length') err.textContent = 'Enter your User ID (2–18 characters)';
+            else if (result.error === 'pin') err.textContent = 'Enter your 4-digit PIN';
+            else if (result.error === 'wrong_pin') err.textContent = 'Wrong User ID or PIN — try again';
+            else if (result.error === 'not_found') err.textContent = 'No account found — create one below';
+            else if (result.error === 'pin_not_synced') {
+                err.textContent = 'Account exists — sign in once on your original device while online to sync your PIN';
+            }
+            else if (result.error === 'network') err.textContent = 'Could not sign in online — check your internet connection';
+            else if (result.error === 'storage') err.textContent = 'Could not save login — turn off Private Browsing';
+            else if (result.error === 'needs_setup') {
+                AN.UI._pendingLoginId = result.profileId;
+                AN.UI._pinMode = 'setup';
+                AN.UI.$('pinModalTitle').textContent = 'SET YOUR PIN';
+                AN.UI.$('pinModalSub').textContent = 'Your account needs a 4-digit PIN — choose one now';
+                AN.UI.$('pinInput').value = '';
+                AN.UI.$('pinError')?.classList.add('hidden');
+                AN.UI.show('pinModal');
+                document.body.classList.add('pin-modal-open');
+                err.classList.add('hidden');
+                setTimeout(() => AN.UI.$('pinInput')?.focus(), 150);
+                return;
+            }
+            else err.textContent = 'Could not sign in — try again';
+            err.classList.remove('hidden');
+        }
+        return;
+    }
+    if (err) err.classList.add('hidden');
+    AN.UI.$('loginUserId').value = '';
+    AN.UI.$('loginPin').value = '';
+    if (result.restored) {
+        AN.UI.toast('Signed in as ' + result.profile.name, true);
+    }
+    AN.Main.loginAs(result.profile.id);
+};
+
 AN.UI.createPlayer = async () => {
     const userId = AN.UI.$('newPlayerName')?.value || '';
     const pin = AN.UI.$('newPlayerPin')?.value || '';
@@ -272,15 +317,15 @@ AN.UI.createPlayer = async () => {
     const btn = AN.UI.$('btnCreatePlayer');
     if (btn) { btn.disabled = true; btn.textContent = 'CHECKING…'; }
     const result = await AN.Profiles.create(userId, pin);
-    if (btn) { btn.disabled = false; btn.textContent = 'CREATE & PLAY'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'CREATE ACCOUNT'; }
     if (result.error) {
         if (err) {
             if (result.error === 'length') err.textContent = 'User ID must be 2–18 characters';
             else if (result.error === 'pin') err.textContent = 'PIN required — enter exactly 4 digits';
             else if (result.error === 'duplicate') {
                 err.textContent = result.global
-                    ? `User ID "${result.userId}" is already taken worldwide — pick another`
-                    : `User ID "${result.userId}" is already taken on this device — pick another`;
+                    ? `User ID "${result.userId}" is already taken — sign in above or pick another`
+                    : `User ID "${result.userId}" is already taken — sign in above or pick another`;
             }
             else if (result.error === 'storage') err.textContent = 'Could not save account — turn off Private Browsing or free storage space';
             else if (result.error === 'network') err.textContent = 'Could not verify User ID online — check internet connection and try again';
@@ -847,6 +892,7 @@ AN.UI.syncKeyboardHints = () => {
 };
 
 AN.UI.openA11yModal = () => {
+    AN.FX?.resumeAudio?.();
     AN.UI.syncA11yModal();
     AN.UI.show('a11yModal');
 };
@@ -871,6 +917,15 @@ AN.UI.syncA11yModal = () => {
     }
 };
 
+AN.UI._applyA11yVolume = () => {
+    const vol = AN.UI.$('a11yVolume');
+    if (!vol) return;
+    const v = Math.max(0, Math.min(100, parseInt(vol.value, 10) || 0)) / 100;
+    AN.FX?.resumeAudio?.();
+    AN.A11y.save({ volume: v, muted: false });
+    AN.FX?.previewTone?.();
+};
+
 AN.UI.bindA11yModal = () => {
     AN.UI.bind('btnA11yMute', () => AN.A11y.toggleMuted());
     const big = AN.UI.$('a11yBigButtons');
@@ -880,11 +935,10 @@ AN.UI.bindA11yModal = () => {
     big?.addEventListener('change', () => AN.A11y.save({ bigButtons: big.checked }));
     cb?.addEventListener('change', () => AN.A11y.save({ colorBlind: cb.checked }));
     shortcuts?.addEventListener('change', () => AN.A11y.save({ showShortcuts: shortcuts.checked }));
-    vol?.addEventListener('input', () => {
-        const v = Math.max(0, Math.min(100, parseInt(vol.value, 10) || 0)) / 100;
-        AN.A11y.save({ volume: v, muted: false });
-        AN.FX?.beep?.(520, 0.04, 'sine', 0.05 * v);
-    });
+    vol?.addEventListener('pointerdown', () => AN.FX?.resumeAudio?.());
+    vol?.addEventListener('touchstart', () => AN.FX?.resumeAudio?.(), { passive: true });
+    vol?.addEventListener('input', () => AN.UI._applyA11yVolume());
+    vol?.addEventListener('change', () => AN.UI._applyA11yVolume());
 };
 
 AN.UI.victory = (stats, loot, impact) => {
