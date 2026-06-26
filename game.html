@@ -3,7 +3,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <style id="phoneFitLock">
+    html.is-touch,html.phone-fit{overflow-x:clip!important}
+    html.is-touch #uiFit,html.is-touch #shakeRoot,html.phone-fit #uiFit,html.phone-fit #shakeRoot{
+      position:relative!important;width:100%!important;max-width:100%!important;
+      transform:none!important;scale:1!important;height:auto!important;min-height:100dvh!important}
+    html.is-touch body,html.phone-fit body{font-size:14px!important;overflow-x:clip!important}
+    </style>
+    <script>
+    (function () {
+        var touch = window.matchMedia('(hover: none)').matches
+            || window.matchMedia('(pointer: coarse)').matches
+            || window.matchMedia('(max-width: 932px)').matches
+            || ('ontouchstart' in window);
+        if (touch) {
+            document.documentElement.classList.add('is-touch', 'phone-fit');
+        }
+    })();
+    </script>
     <title>Journey Through the 1980s</title>
     <script>
     (function () {
@@ -19,7 +37,7 @@
     })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="game.css?v=102">
+    <link rel="stylesheet" href="game.css?v=109">
 </head>
 <body class="phase-boot">
     <div id="gameLayer">
@@ -52,12 +70,14 @@
             <div class="login-shell">
                 <p class="login-badge">👤 PLAYER LOGIN</p>
                 <h1 class="login-title">WHO'S PLAYING?</h1>
-                <p class="login-sub">Create a profile with a 4-digit PIN — required every time you play</p>
+                <p class="login-sub">Create an account with a User ID and 4-digit PIN — saved on this device</p>
                 <div id="playerList" class="player-list"></div>
                 <div class="login-create">
-                    <h3 class="login-create-title">NEW PLAYER</h3>
+                    <h3 class="login-create-title">NEW ACCOUNT</h3>
                     <div class="login-form">
-                        <input type="text" id="newPlayerName" class="login-input" maxlength="18" placeholder="Your name…" autocomplete="off" />
+                        <label class="login-field-label" for="newPlayerName">User ID</label>
+                        <input type="text" id="newPlayerName" class="login-input" maxlength="18" placeholder="Pick a User ID (2–18 chars)…" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" />
+                        <label class="login-field-label" for="newPlayerPin">PIN</label>
                         <input type="password" id="newPlayerPin" class="login-input login-pin" maxlength="4" inputmode="numeric" placeholder="4-digit PIN (required)" autocomplete="new-password" required />
                         <button type="button" class="arcade-btn arcade-btn-lg" id="btnCreatePlayer">CREATE & PLAY</button>
                     </div>
@@ -72,7 +92,7 @@
                 <h2>DELETE ACCOUNT</h2>
                 <p id="deleteAccountMsg" class="delete-msg">This cannot be undone.</p>
                 <input type="password" id="deleteConfirmPin" class="login-input login-pin" maxlength="4" inputmode="numeric" placeholder="Enter PIN to confirm" autocomplete="off" />
-                <input type="text" id="deleteConfirmName" class="login-input hidden" maxlength="18" placeholder="Type account name to confirm" autocomplete="off" />
+                <input type="text" id="deleteConfirmName" class="login-input hidden" maxlength="18" placeholder="Type User ID to confirm" autocomplete="off" />
                 <button type="button" id="btnDeleteForgotPin" class="delete-forgot-link">Forgot PIN?</button>
                 <p id="deleteError" class="login-error hidden"></p>
                 <div class="pin-actions">
@@ -433,15 +453,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="data.js?v=70"></script>
     <script src="answerImageData.js?v=65"></script>
-    <script src="firebase-config.js?v=2"></script>
-    <script src="globalLeaderboard.js?v=2"></script>
-    <script src="profiles.js?v=52"></script>
+    <script src="firebase-config.js?v=3"></script>
+    <script src="globalLeaderboard.js?v=3"></script>
+    <script src="profiles.js?v=56"></script>
     <script src="cueArt.js?v=62"></script>
     <script src="fx.js?v=32"></script>
     <script src="minigames.js?v=69"></script>
     <script src="worlds.js?v=32"></script>
     <script src="engine.js?v=45"></script>
-    <script src="ui.js?v=73"></script>
-    <script src="main.js?v=67"></script>
+    <script src="ui.js?v=80"></script>
+    <script src="main.js?v=72"></script>
 </body>
 </html>

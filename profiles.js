@@ -136,6 +136,11 @@ AN.Profiles.init = async () => {
     });
     if (changed) AN.Profiles._writeRegistry(reg);
     await AN.GlobalLB?.ensureFreshBoard?.();
+    if (AN.GlobalLB?.isEnabled?.()) {
+        for (const p of reg.profiles) {
+            await AN.GlobalLB.claimUserId(p.name, p.globalId);
+        }
+    }
 };
 
 AN.Profiles.list = () => AN.Profiles._readRegistry().profiles;
@@ -167,13 +172,20 @@ AN.Profiles.setActive = (id) => {
     return true;
 };
 
-AN.Profiles.create = (userId, pin = '') => {
+AN.Profiles.create = async (userId, pin = '') => {
     if (!AN.Profiles.storageOk()) return { error: 'storage' };
     const trimmed = AN.Profiles.normalizeUserId(userId);
     const pinNorm = AN.Profiles._normalizePin(pin);
     if (trimmed.length < 2 || trimmed.length > 18) return { error: 'length' };
     if (!AN.Profiles._isValidPin(pinNorm)) return { error: 'pin' };
-    if (AN.Profiles.isUserIdTaken(trimmed)) return { error: 'duplicate', userId: trimmed };
+    if (AN.Profiles.isUserIdTaken(trimmed)) {
+        return { error: 'duplicate', userId: trimmed, global: false };
+    }
+    if (AN.GlobalLB?.isEnabled?.()) {
+        if (await AN.GlobalLB.isUserIdTakenRemote(trimmed)) {
+            return { error: 'duplicate', userId: trimmed, global: true };
+        }
+    }
     const reg = AN.Profiles._readRegistry();
     const id = 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
     const profile = {
@@ -193,6 +205,16 @@ AN.Profiles.create = (userId, pin = '') => {
         reg.activeId = reg.profiles[0]?.id || null;
         AN.Profiles._writeRegistry(reg);
         return { error: 'storage' };
+    }
+    if (AN.GlobalLB?.isEnabled?.()) {
+        const claimed = await AN.GlobalLB.claimUserId(trimmed, profile.globalId);
+        if (!claimed) {
+            reg.profiles = reg.profiles.filter(p => p.id !== id);
+            reg.activeId = reg.profiles[0]?.id || null;
+            AN.Profiles._writeRegistry(reg);
+            AN.Profiles._removeItem(AN.Profiles.saveKey(id));
+            return { error: 'duplicate', userId: trimmed, global: true };
+        }
     }
     return { profile };
 };
@@ -292,9 +314,13 @@ AN.Profiles.leaderboard = () => {
 };
 
 AN.Profiles.delete = (id) => {
+    const p = AN.Profiles.get(id);
     const reg = AN.Profiles._readRegistry();
-    reg.profiles = reg.profiles.filter(p => p.id !== id);
+    reg.profiles = reg.profiles.filter(x => x.id !== id);
     if (reg.activeId === id) reg.activeId = reg.profiles[0]?.id || null;
     AN.Profiles._writeRegistry(reg);
     AN.Profiles._removeItem(AN.Profiles.saveKey(id));
+    if (p && AN.GlobalLB?.isEnabled?.()) {
+        AN.GlobalLB.releaseUserId(p.name, p.globalId);
+    }
 };

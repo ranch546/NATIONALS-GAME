@@ -9,7 +9,8 @@
  *
  *    {
  *      "rules": {
- *        "leaderboard": { ".read": true, ".write": true }
+ *        "leaderboard": { ".read": true, ".write": true },
+ *        "usernames": { ".read": true, ".write": true }
  *      }
  *    }
  *

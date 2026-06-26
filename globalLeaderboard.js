@@ -14,6 +14,72 @@ AN.GlobalLB._base = () => {
     return url + '/leaderboard';
 };
 
+AN.GlobalLB._userBase = () => {
+    const url = (AN.GlobalLB._cfg().databaseURL || '').trim().replace(/\/$/, '');
+    return url + '/usernames';
+};
+
+AN.GlobalLB.userIdKey = (userId) =>
+    AN.Profiles.normalizeUserId(userId).toLowerCase();
+
+AN.GlobalLB.fetchUsernameEntry = async (userId) => {
+    if (!AN.GlobalLB.isEnabled()) return null;
+    const key = AN.GlobalLB.userIdKey(userId);
+    if (!key) return null;
+    try {
+        const res = await fetch(AN.GlobalLB._userBase() + '/' + encodeURIComponent(key) + '.json');
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data && typeof data === 'object' ? data : null;
+    } catch (_) {
+        return null;
+    }
+};
+
+/** True if this User ID is already registered on another device/account */
+AN.GlobalLB.isUserIdTakenRemote = async (userId, exceptGlobalId = null) => {
+    const entry = await AN.GlobalLB.fetchUsernameEntry(userId);
+    if (!entry || !entry.globalId) return false;
+    if (exceptGlobalId && entry.globalId === exceptGlobalId) return false;
+    return true;
+};
+
+/** Reserve User ID globally (one per name worldwide) */
+AN.GlobalLB.claimUserId = async (userId, globalId) => {
+    if (!AN.GlobalLB.isEnabled() || !globalId) return true;
+    const trimmed = AN.Profiles.normalizeUserId(userId);
+    const key = AN.GlobalLB.userIdKey(trimmed);
+    if (!key) return false;
+    const taken = await AN.GlobalLB.isUserIdTakenRemote(trimmed, globalId);
+    if (taken) return false;
+    try {
+        const res = await fetch(AN.GlobalLB._userBase() + '/' + encodeURIComponent(key) + '.json', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: trimmed,
+                globalId,
+                updatedAt: Date.now()
+            })
+        });
+        return res.ok;
+    } catch (_) {
+        return false;
+    }
+};
+
+/** Free User ID when account is deleted (only if we own it) */
+AN.GlobalLB.releaseUserId = async (userId, globalId) => {
+    if (!AN.GlobalLB.isEnabled() || !globalId) return;
+    const entry = await AN.GlobalLB.fetchUsernameEntry(userId);
+    if (!entry || entry.globalId !== globalId) return;
+    const key = AN.GlobalLB.userIdKey(userId);
+    if (!key) return;
+    try {
+        await fetch(AN.GlobalLB._userBase() + '/' + encodeURIComponent(key) + '.json', { method: 'DELETE' });
+    } catch (_) {}
+};
+
 AN.GlobalLB._pinKey = () => 'an_lb_reset_v';
 
 /** Clears remote leaderboard once when leaderboardResetVersion bumps in firebase-config.js */

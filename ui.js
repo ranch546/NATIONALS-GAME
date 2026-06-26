@@ -264,16 +264,23 @@ AN.UI.confirmPin = () => {
     AN.Main.loginAs(id);
 };
 
-AN.UI.createPlayer = () => {
+AN.UI.createPlayer = async () => {
     const userId = AN.UI.$('newPlayerName')?.value || '';
     const pin = AN.UI.$('newPlayerPin')?.value || '';
     const err = AN.UI.$('loginError');
-    const result = AN.Profiles.create(userId, pin);
+    const btn = AN.UI.$('btnCreatePlayer');
+    if (btn) { btn.disabled = true; btn.textContent = 'CHECKING…'; }
+    const result = await AN.Profiles.create(userId, pin);
+    if (btn) { btn.disabled = false; btn.textContent = 'CREATE & PLAY'; }
     if (result.error) {
         if (err) {
             if (result.error === 'length') err.textContent = 'User ID must be 2–18 characters';
             else if (result.error === 'pin') err.textContent = 'PIN required — enter exactly 4 digits';
-            else if (result.error === 'duplicate') err.textContent = `User ID "${result.userId}" is already taken — pick another`;
+            else if (result.error === 'duplicate') {
+                err.textContent = result.global
+                    ? `User ID "${result.userId}" is already taken worldwide — pick another`
+                    : `User ID "${result.userId}" is already taken on this device — pick another`;
+            }
             else if (result.error === 'storage') err.textContent = 'Could not save account — turn off Private Browsing or free storage space';
             else err.textContent = 'Could not create account — try again';
             err.classList.remove('hidden');
