@@ -174,15 +174,22 @@ AN.Profiles.init = async () => {
     await AN.Profiles.syncUserIdsToCloud();
 };
 
+AN.Profiles.syncCredentialsToCloud = async (profile, pin) => {
+    if (!profile?.globalId || AN.Admin?.isAdminProfile?.(profile)) return;
+    if (!AN.GlobalLB?.isEnabled?.()) return;
+    const pinNorm = AN.Profiles._normalizePin(pin ?? profile.pin);
+    if (!AN.Profiles._isValidPin(pinNorm)) return;
+    await AN.GlobalLB.syncAccountCredentials(profile.name, profile.globalId, pinNorm);
+};
+
 AN.Profiles.syncUserIdsToCloud = async () => {
     if (!AN.GlobalLB?.isEnabled?.()) return;
     for (const p of AN.Profiles.list()) {
-        if (!p.globalId) continue;
-        if (AN.Admin?.isAdminProfile?.(p)) continue;
-        await AN.GlobalLB.reserveUserId(p.name, p.globalId);
+        if (!p.globalId || AN.Admin?.isAdminProfile?.(p)) continue;
         if (AN.Profiles._hasValidPin(p)) {
-            const pinHash = await AN.Profiles._pinHash(p.pin);
-            if (pinHash) await AN.GlobalLB.syncPinHash(p.name, p.globalId, pinHash);
+            await AN.Profiles.syncCredentialsToCloud(p);
+        } else {
+            await AN.GlobalLB.reserveUserId(p.name, p.globalId);
         }
     }
 };
@@ -229,8 +236,9 @@ AN.Profiles.create = async (userId, pin = '') => {
         return { error: 'duplicate', userId: trimmed, global: false };
     }
     const globalId = 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    const pinHash = await AN.Profiles._pinHash(pinNorm);
     if (AN.GlobalLB?.isEnabled?.()) {
-        const remote = await AN.GlobalLB.reserveUserId(trimmed, globalId);
+        const remote = await AN.GlobalLB.reserveUserId(trimmed, globalId, { pinHash });
         if (remote.status === 'taken') {
             return { error: 'duplicate', userId: trimmed, global: true };
         }
@@ -262,10 +270,6 @@ AN.Profiles.create = async (userId, pin = '') => {
         if (AN.GlobalLB?.isEnabled?.()) AN.GlobalLB.releaseUserId(trimmed, globalId);
         return { error: 'storage' };
     }
-    if (AN.GlobalLB?.isEnabled?.()) {
-        const pinHash = await AN.Profiles._pinHash(pinNorm);
-        if (pinHash) await AN.GlobalLB.syncPinHash(trimmed, globalId, pinHash);
-    }
     return { profile };
 };
 
@@ -278,8 +282,7 @@ AN.Profiles.setPin = async (id, pin) => {
     p.pin = pinNorm;
     AN.Profiles._writeRegistry(reg);
     if (AN.GlobalLB?.isEnabled?.() && p.globalId) {
-        const pinHash = await AN.Profiles._pinHash(pinNorm);
-        if (pinHash) await AN.GlobalLB.syncPinHash(p.name, p.globalId, pinHash);
+        await AN.Profiles.syncCredentialsToCloud(p, pinNorm);
     }
     return true;
 };
@@ -312,6 +315,7 @@ AN.Profiles.loginByUserId = async (userId, pin) => {
         }
         if (!AN.Profiles.checkPin(local.id, pinNorm)) return { error: 'wrong_pin' };
         AN.Profiles.setActive(local.id);
+        await AN.Profiles.syncCredentialsToCloud(local, pinNorm);
         return { profile: local };
     }
 
@@ -322,10 +326,7 @@ AN.Profiles.loginByUserId = async (userId, pin) => {
     if (!entry || !entry.globalId) return { error: 'not_found' };
 
     const pinHash = await AN.Profiles._pinHash(pinNorm);
-    if (!entry.pinHash) {
-        return { error: 'pin_not_synced', userId: trimmed };
-    }
-    if (entry.pinHash !== pinHash) return { error: 'wrong_pin' };
+    if (entry.pinHash && entry.pinHash !== pinHash) return { error: 'wrong_pin' };
 
     if (!AN.Profiles.storageOk()) return { error: 'storage' };
 
@@ -349,7 +350,7 @@ AN.Profiles.loginByUserId = async (userId, pin) => {
         AN.Profiles._writeRegistry(reg);
         return { error: 'storage' };
     }
-    await AN.GlobalLB.reserveUserId(trimmed, entry.globalId);
+    await AN.GlobalLB.syncAccountCredentials(trimmed, entry.globalId, pinNorm);
     return { profile, restored: true };
 };
 

@@ -639,6 +639,7 @@ AN.Main = {
         if (!AN.Profiles.setActive(profileId)) return;
         const profile = AN.Profiles.getActive();
         if (profile && AN.GlobalLB?.isEnabled?.() && !AN.Admin?.isAdminProfile?.(profile)) {
+            AN.GlobalLB.syncAccountCredentials(profile.name, profile.globalId, profile.pin);
             AN.GlobalLB.claimUserId(profile.name, profile.globalId).then((ok) => {
                 if (!ok) AN.UI.toast('This User ID is already registered on another device', false);
             });

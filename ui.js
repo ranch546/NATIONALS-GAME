@@ -278,9 +278,6 @@ AN.UI.loginPlayer = async () => {
             else if (result.error === 'pin') err.textContent = 'Enter your 4-digit PIN';
             else if (result.error === 'wrong_pin') err.textContent = 'Wrong User ID or PIN — try again';
             else if (result.error === 'not_found') err.textContent = 'No account found — create one below';
-            else if (result.error === 'pin_not_synced') {
-                err.textContent = 'Account exists — sign in once on your original device while online to sync your PIN';
-            }
             else if (result.error === 'network') err.textContent = 'Could not sign in online — check your internet connection';
             else if (result.error === 'storage') err.textContent = 'Could not save login — turn off Private Browsing';
             else if (result.error === 'needs_setup') {
