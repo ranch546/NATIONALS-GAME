@@ -327,7 +327,11 @@ AN.UI.createPlayer = async () => {
                     ? `User ID "${result.userId}" is already taken — sign in above or pick another`
                     : `User ID "${result.userId}" is already taken — sign in above or pick another`;
             }
-            else if (result.error === 'reserved') err.textContent = 'That User ID is reserved';
+            else if (result.error === 'reserved') {
+                err.textContent = AN.Demo?.isDemoName?.(userId)
+                    ? 'Judge Demo Mode is reserved — use PIN 1234 to sign in'
+                    : 'That User ID is reserved';
+            }
             else if (result.error === 'storage') err.textContent = 'Could not save account — turn off Private Browsing or free storage space';
             else if (result.error === 'network') err.textContent = 'Could not verify User ID online — check internet connection and try again';
             else err.textContent = 'Could not create account — try again';
@@ -396,19 +400,20 @@ AN.UI.renderAdminPanel = async () => {
     }
     list.innerHTML = '';
     users.forEach(u => {
+        const isProtected = AN.Demo?.isDemoName?.(u.name);
         const row = document.createElement('div');
-        row.className = 'admin-user-row';
+        row.className = 'admin-user-row' + (isProtected ? ' admin-user-protected' : '');
         row.innerHTML = `
             <div class="admin-user-head">
-                <strong class="admin-user-name">${AN.UI._esc(u.name)}</strong>
+                <strong class="admin-user-name">${AN.UI._esc(u.name)}${isProtected ? ' <span class="admin-protected-tag">PROTECTED</span>' : ''}</strong>
                 <span class="admin-user-id">${AN.UI._esc(u.globalId)}</span>
             </div>
             <div class="admin-user-actions">
-                <input type="text" class="login-input admin-rename-input" maxlength="18" placeholder="New User ID" aria-label="Rename ${AN.UI._esc(u.name)}" />
+                <input type="text" class="login-input admin-rename-input" maxlength="18" placeholder="New User ID" aria-label="Rename ${AN.UI._esc(u.name)}" ${isProtected ? 'disabled' : ''} />
                 <input type="password" class="login-input login-pin admin-pin-input" maxlength="4" inputmode="numeric" placeholder="New PIN" aria-label="New PIN for ${AN.UI._esc(u.name)}" />
-                <button type="button" class="arcade-btn arcade-btn-ghost admin-btn-rename">RENAME</button>
+                <button type="button" class="arcade-btn arcade-btn-ghost admin-btn-rename" ${isProtected ? 'disabled' : ''}>RENAME</button>
                 <button type="button" class="arcade-btn arcade-btn-ghost admin-btn-pin">SET PIN</button>
-                <button type="button" class="arcade-btn delete-btn admin-btn-delete">DELETE</button>
+                ${isProtected ? '' : '<button type="button" class="arcade-btn delete-btn admin-btn-delete">DELETE</button>'}
             </div>`;
         const renameIn = row.querySelector('.admin-rename-input');
         const pinIn = row.querySelector('.admin-pin-input');
@@ -418,6 +423,10 @@ AN.UI.renderAdminPanel = async () => {
             if (res.ok) {
                 AN.UI.toast('Deleted ' + u.name, true);
                 AN.UI.renderAdminPanel();
+            } else if (res.error === 'protected') {
+                AN.UI.toast('Judge Demo Mode is protected and cannot be deleted', false);
+            } else if (res.error === 'not_found') {
+                AN.UI.toast('Account not found online', false);
             } else {
                 AN.UI.toast('Could not delete account', false);
             }

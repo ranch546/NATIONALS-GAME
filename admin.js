@@ -83,15 +83,11 @@ AN.Admin.deleteRemoteUser = async (userId) => {
     if (!AN.GlobalLB?.isEnabled?.()) return { ok: false, error: 'offline' };
     const name = AN.Profiles.normalizeUserId(userId);
     if (!name || name.toLowerCase() === AN.Admin.USER_ID) return { ok: false, error: 'reserved' };
+    if (AN.Demo?.isDemoName?.(name)) return { ok: false, error: 'protected' };
     const entry = await AN.GlobalLB.fetchUsernameEntry(name);
     if (!entry || entry.__error) return { ok: false, error: 'not_found' };
-    const globalId = entry.globalId;
-    await AN.GlobalLB.releaseUserId(name, globalId);
-    if (globalId) {
-        try {
-            await fetch(AN.GlobalLB._base() + '/' + encodeURIComponent(globalId) + '.json', { method: 'DELETE' });
-        } catch (_) {}
-    }
+    const del = await AN.GlobalLB.forceDeleteUser(name);
+    if (!del.ok) return del;
     const local = AN.Profiles.findByUserId(name);
     if (local) AN.Profiles.delete(local.id);
     return { ok: true };
@@ -105,6 +101,7 @@ AN.Admin.renameRemoteUser = async (oldName, newName) => {
         return { ok: false, error: 'length' };
     }
     if (newTrim.toLowerCase() === AN.Admin.USER_ID) return { ok: false, error: 'reserved' };
+    if (AN.Demo?.isDemoName?.(newTrim)) return { ok: false, error: 'reserved' };
     const taken = await AN.GlobalLB.isUserIdTakenRemote(newTrim);
     if (taken === null) return { ok: false, error: 'network' };
     if (taken) return { ok: false, error: 'taken' };

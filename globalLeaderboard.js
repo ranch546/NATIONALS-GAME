@@ -41,9 +41,53 @@ AN.GlobalLB.fetchUsernameEntry = async (userId) => {
 AN.GlobalLB.isUserIdTakenRemote = async (userId, exceptGlobalId = null) => {
     const entry = await AN.GlobalLB.fetchUsernameEntry(userId);
     if (entry && entry.__error) return null;
-    if (!entry || !entry.globalId) return false;
-    if (exceptGlobalId && entry.globalId === exceptGlobalId) return false;
-    return true;
+    if (entry?.globalId && entry.globalId !== exceptGlobalId) return true;
+    if (!AN.GlobalLB.isEnabled()) return false;
+    const target = AN.GlobalLB.userIdKey(userId);
+    if (!target) return false;
+    try {
+        const res = await fetch(AN.GlobalLB._base() + '.json');
+        if (!res.ok) return entry ? false : null;
+        const data = await res.json();
+        if (!data || typeof data !== 'object') return false;
+        const dup = Object.entries(data).some(([id, row]) => {
+            if (!row || !row.name) return false;
+            if (exceptGlobalId && id === exceptGlobalId) return false;
+            return AN.GlobalLB.userIdKey(row.name) === target;
+        });
+        if (dup) return true;
+    } catch (_) {
+        return null;
+    }
+    return false;
+};
+
+/** Admin: delete User ID + all leaderboard rows for that name (no ownership check) */
+AN.GlobalLB.forceDeleteUser = async (userId) => {
+    if (!AN.GlobalLB.isEnabled()) return { ok: false, error: 'offline' };
+    const name = AN.Profiles.normalizeUserId(userId);
+    const key = AN.GlobalLB.userIdKey(name);
+    if (!key) return { ok: false, error: 'invalid' };
+    try {
+        await fetch(AN.GlobalLB._userBase() + '/' + encodeURIComponent(key) + '.json', { method: 'DELETE' });
+        const res = await fetch(AN.GlobalLB._base() + '.json');
+        if (res.ok) {
+            const data = await res.json();
+            if (data && typeof data === 'object') {
+                await Promise.all(Object.entries(data).map(async ([id, row]) => {
+                    if (!row || typeof row !== 'object') return;
+                    if (AN.GlobalLB.userIdKey(row.name || '') !== key) return;
+                    await fetch(
+                        AN.GlobalLB._base() + '/' + encodeURIComponent(id) + '.json',
+                        { method: 'DELETE' }
+                    );
+                }));
+            }
+        }
+        return { ok: true };
+    } catch (_) {
+        return { ok: false, error: 'network' };
+    }
 };
 
 /** Reserve User ID globally — never wipe pinHash on update */
@@ -291,7 +335,27 @@ AN.GlobalLB.getLeaderboard = async () => {
         }
     });
 
-    return Array.from(byKey.values()).sort((a, b) =>
+    const byName = new Map();
+    Array.from(byKey.values()).forEach(row => {
+        const nk = AN.GlobalLB.userIdKey(row.name);
+        const existing = byName.get(nk);
+        if (!existing) {
+            byName.set(nk, row);
+            return;
+        }
+        const demoId = AN.Demo?.GLOBAL_ID;
+        if (row.id === demoId) {
+            byName.set(nk, row);
+            return;
+        }
+        if (existing.id === demoId) return;
+        if (row.bestScore > existing.bestScore
+            || (row.bestScore === existing.bestScore && row.xp > existing.xp)) {
+            byName.set(nk, row);
+        }
+    });
+
+    return Array.from(byName.values()).sort((a, b) =>
         b.bestScore - a.bestScore
         || b.xp - a.xp
         || b.journeys - a.journeys

@@ -23,7 +23,18 @@ AN.Profiles.STORAGE_KEY = 'journey1980s_profiles_v1';
 AN.Profiles.LEGACY_KEY = 'journey1980s';
 AN.Profiles.saveKey = (id) => 'journey1980s_player_' + id;
 
-AN.Profiles.normalizeUserId = (userId) => String(userId || '').trim();
+AN.Profiles.normalizeUserId = (userId) =>
+    String(userId || '').trim().replace(/\s+/g, ' ');
+
+AN.Profiles.RESERVED_USER_IDS = ['admin'];
+
+AN.Profiles.isReservedUserId = (userId) => {
+    const id = AN.Profiles.normalizeUserId(userId).toLowerCase();
+    if (!id) return false;
+    if (AN.Profiles.RESERVED_USER_IDS.includes(id)) return true;
+    if (AN.Demo?.isDemoName?.(userId)) return true;
+    return false;
+};
 
 AN.Profiles.isUserIdTaken = (userId) => {
     const id = AN.Profiles.normalizeUserId(userId).toLowerCase();
@@ -156,6 +167,7 @@ AN.Profiles.init = async () => {
         localStorage.setItem(wipeKey, String(wipeVer));
     }
     AN.Admin?.ensureLocalAccount?.();
+    await AN.Demo?.ensure?.();
     const reg = AN.Profiles._readRegistry();
     let changed = false;
     reg.profiles.forEach(p => {
@@ -186,6 +198,7 @@ AN.Profiles.syncUserIdsToCloud = async () => {
     if (!AN.GlobalLB?.isEnabled?.()) return;
     for (const p of AN.Profiles.list()) {
         if (!p.globalId || AN.Admin?.isAdminProfile?.(p)) continue;
+        if (AN.Demo?.isDemoName?.(p.name)) continue;
         if (AN.Profiles._hasValidPin(p)) {
             await AN.Profiles.syncCredentialsToCloud(p);
         } else {
@@ -228,7 +241,7 @@ AN.Profiles.create = async (userId, pin = '') => {
     const trimmed = AN.Profiles.normalizeUserId(userId);
     const pinNorm = AN.Profiles._normalizePin(pin);
     if (trimmed.length < 2 || trimmed.length > 18) return { error: 'length' };
-    if (trimmed.toLowerCase() === AN.Admin?.USER_ID) {
+    if (AN.Profiles.isReservedUserId(trimmed)) {
         return { error: 'reserved', userId: trimmed };
     }
     if (!AN.Profiles._isValidPin(pinNorm)) return { error: 'pin' };
@@ -238,6 +251,9 @@ AN.Profiles.create = async (userId, pin = '') => {
     const globalId = 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
     const pinHash = await AN.Profiles._pinHash(pinNorm);
     if (AN.GlobalLB?.isEnabled?.()) {
+        const taken = await AN.GlobalLB.isUserIdTakenRemote(trimmed);
+        if (taken === null) return { error: 'network' };
+        if (taken) return { error: 'duplicate', userId: trimmed, global: true };
         const remote = await AN.GlobalLB.reserveUserId(trimmed, globalId, { pinHash });
         if (remote.status === 'taken') {
             return { error: 'duplicate', userId: trimmed, global: true };
